@@ -90,7 +90,13 @@ const vendorStyles = {
   },
   picker: {
     marginLeft: -13
-  }
+  },
+
+  // MyCamera styles
+  cameraView: {
+    flex: 1
+  },
+  comp: {}
 };
 
 export { styles, vendorStyles };

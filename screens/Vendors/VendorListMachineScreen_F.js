@@ -5,7 +5,8 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
-  Dimensions
+  Dimensions,
+  ActionSheetIOS
 } from 'react-native';
 import {
   Item,
@@ -19,6 +20,7 @@ import {
 } from 'native-base';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, vendorStyles } from '../../components/Styles';
+import { Camera, ImagePicker, Permissions } from 'expo';
 
 export default class VendorListMachineScreen extends React.Component {
   constructor(props) {
@@ -39,6 +41,46 @@ export default class VendorListMachineScreen extends React.Component {
       fontWeight: 'bold',
       color: '#D9AE3C',
       textAlign: 'center'
+    }
+  };
+
+  takePictures = async () => {
+    const { status } = await Permissions.askAsync(
+      Permissions.CAMERA,
+      Permissions.CAMERA_ROLL
+    );
+    this.setState({
+      hasCameraPermission: status === 'granted',
+      hasGalleryPermission: status === 'granted'
+    });
+
+    if (this.state.hasCameraPermission && this.state.hasGalleryPermission) {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Take Pictures', 'Choose Images', 'Cancel'],
+          cancelButtonIndex: 2,
+          destructiveButtonIndex: 2
+        },
+        buttonIndex => {
+          switch (buttonIndex) {
+            case 0:
+              // 'Take picture => Open Camera'
+              this.props.navigation.navigate('MyCamera');
+              break;
+            case 1:
+              // 'Choose picture => Open CameraRoll'
+              break;
+            case 2:
+              // 'Cancel'
+              break;
+            default:
+              break;
+          }
+        }
+      );
+    } else {
+      Alert.alert('Please grant Camera and Gallery permission');
+      return;
     }
   };
 
@@ -97,7 +139,11 @@ export default class VendorListMachineScreen extends React.Component {
             >
               <CardItem>
                 <View style={vendorStyles.machineImage}>
-                  <Button block style={styles.loginButton}>
+                  <Button
+                    block
+                    style={styles.loginButton}
+                    onPress={() => this.takePictures()}
+                  >
                     <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
                       Add Image
                     </Text>

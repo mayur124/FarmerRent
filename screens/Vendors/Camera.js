@@ -46,34 +46,25 @@ export default class MyCamera extends React.Component {
           await this.setState({
             images: this.state.images.concat(result.uri)
           });
+          Alert.alert(
+            'Another Picture? ',
+            null,
+            [
+              {
+                text: 'Yes',
+                onPress: () => this.takePicture()
+              },
+              { text: 'No' }
+            ],
+            { cancelable: false }
+          );
         }
         console.log(this.state);
-      })
-      .then(async () => {
-        await Alert.alert(
-          'Another Picture? ',
-          null,
-          [
-            {
-              text: 'Yes',
-              onPress: () => this.takePicture()
-            },
-            { text: 'No' }
-          ],
-          { cancelable: false }
-        );
       })
       .catch(error => console.log(error));
   };
 
   render() {
-    if (this.state.images.length === 0) {
-      return (
-        <View style={styles.container}>
-          <ActivityIndicator size='large' />
-        </View>
-      );
-    }
     return <View style={styles.container} />;
   }
 }

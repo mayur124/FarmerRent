@@ -24,9 +24,6 @@ export default class MyCamera extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      //   type: Camera.Constants.Type.back,
-      //   isFlashLightOn: Camera.Constants.FlashMode.off,
-      //   flashColor: '#fff',
       images: []
     };
   }
@@ -68,16 +65,3 @@ export default class MyCamera extends React.Component {
     return <View style={styles.container} />;
   }
 }
-
-/*
-    <ImagePicker
-            style={vendorStyles.cameraView}
-            type={this.state.type}
-            flashMode={this.state.isFlashLightOn}
-            ref={ref => {
-                this.camera = ref
-            }}
-        >
-            
-        </ImagePicker>
-*/

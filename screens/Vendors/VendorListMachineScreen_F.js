@@ -6,7 +6,9 @@ import {
   ScrollView,
   Alert,
   Dimensions,
-  ActionSheetIOS
+  ActionSheetIOS,
+  FlatList,
+  Image
 } from 'react-native';
 import {
   Item,
@@ -20,7 +22,7 @@ import {
 } from 'native-base';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, vendorStyles } from '../../components/Styles';
-import { Camera, ImagePicker, Permissions } from 'expo';
+import { ImagePicker, Permissions } from 'expo';
 
 export default class VendorListMachineScreen extends React.Component {
   constructor(props) {
@@ -44,6 +46,35 @@ export default class VendorListMachineScreen extends React.Component {
     }
   };
 
+  openCamera = () => {
+    ImagePicker.launchCameraAsync({
+      aspect: [1, 1],
+      quality: 0.2,
+      base64: true
+    })
+      .then(async result => {
+        if (!result.cancelled) {
+          await this.setState({
+            images: this.state.images.concat(result.uri)
+          });
+          Alert.alert(
+            'Add another picture? ',
+            null,
+            [
+              {
+                text: 'Yes',
+                onPress: () => this.openCamera()
+              },
+              { text: 'No' }
+            ],
+            { cancelable: false }
+          );
+        }
+        console.log(this.state.images);
+      })
+      .catch(error => console.log(error));
+  };
+
   takePictures = async () => {
     const { status } = await Permissions.askAsync(
       Permissions.CAMERA,
@@ -65,7 +96,7 @@ export default class VendorListMachineScreen extends React.Component {
           switch (buttonIndex) {
             case 0:
               // 'Take picture => Open Camera'
-              this.props.navigation.navigate('MyCamera');
+              this.openCamera();
               break;
             case 1:
               // 'Choose picture => Open CameraRoll'
@@ -126,119 +157,285 @@ export default class VendorListMachineScreen extends React.Component {
     }
   };
 
+  showImages = () => {
+    let temp_image = [];
+    this.state.images.map((item, index) => {
+      temp_image.push(
+        <View
+          key={index}
+          style={{
+            height: 100,
+            width: 100,
+            borderColor: '#dddddd'
+          }}
+        >
+          <Image
+            key={index}
+            source={{ uri: item }}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              backgroundColor: 'silver',
+              padding: 5,
+              borderRadius: 5,
+              height: null,
+              width: null,
+              margin: 3
+            }}
+          />
+        </View>
+      );
+    });
+    console.log('state images: ', this.state.images);
+
+    return temp_image;
+  };
+
   render() {
-    return (
-      <SafeAreaView style={vendorStyles.container}>
-        <ScrollView contentContainerStyle={styles.container}>
-          <KeyboardAwareScrollView>
-            <Card
-              style={{
-                width: Dimensions.get('screen').width - 20,
-                paddingBottom: 15
-              }}
-            >
-              <CardItem>
-                <View style={vendorStyles.machineImage}>
+    if (this.state.images.length === 0) {
+      return (
+        <SafeAreaView style={vendorStyles.container}>
+          <ScrollView contentContainerStyle={styles.container}>
+            <KeyboardAwareScrollView>
+              <Card
+                style={{
+                  width: Dimensions.get('screen').width - 20,
+                  paddingBottom: 15
+                }}
+              >
+                <CardItem>
+                  <View style={vendorStyles.machineImage}>
+                    <Button
+                      block
+                      style={styles.loginButton}
+                      onPress={() => this.takePictures()}
+                    >
+                      <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
+                        Add Image
+                      </Text>
+                    </Button>
+                  </View>
+                </CardItem>
+                <Form style={{ justifyContent: 'center' }}>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>
+                      Machine Type &#x25bc;
+                    </Label>
+                    <Picker
+                      style={[vendorStyles.picker, styles.picker]}
+                      mode='dropdown'
+                      fontSize='18'
+                      placeholderStyle={{
+                        color: '#4d4d51',
+                        justifyContent: 'flex-start',
+                        fontSize: 18
+                      }}
+                      selectedValue={this.state.machineType}
+                      onValueChange={(itemValue, itemIndex) =>
+                        this.setState({ machineType: itemValue })
+                      }
+                    >
+                      <Picker.Item label='Tractor' value='Tractor' />
+                      <Picker.Item
+                        label='Tillage Equipment'
+                        value='Tillage Equipment'
+                      />
+                      <Picker.Item
+                        label='Seeding Equipment'
+                        value='Seeding Equipment'
+                      />
+                      <Picker.Item
+                        label='Landscaping Equipment'
+                        value='Landscaping Equipment'
+                      />
+                      <Picker.Item
+                        label='Crop Protection'
+                        value='Crop Protection'
+                      />
+                      <Picker.Item
+                        label='Harvest Equipment'
+                        value='Harvest Equipment'
+                      />
+                      <Picker.Item label='Post Harvest' value='Post Harvest' />
+                    </Picker>
+                  </Item>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>Manufacturer</Label>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='default'
+                      style={[styles.inputRegister, styles.input]}
+                      onChangeText={manufacturer =>
+                        this.setState({ manufacturer })
+                      }
+                    />
+                  </Item>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>Model</Label>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='default'
+                      onChangeText={model => this.setState({ model })}
+                      style={[styles.inputRegister, styles.input]}
+                    />
+                  </Item>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>
+                      Year of manufacturing
+                    </Label>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='number-pad'
+                      onChangeText={yearOfManufacturing =>
+                        this.setState({ yearOfManufacturing })
+                      }
+                      style={[styles.inputRegister, styles.input]}
+                    />
+                  </Item>
                   <Button
+                    onPress={() => this.validateData()}
                     block
                     style={styles.loginButton}
-                    onPress={() => this.takePictures()}
                   >
                     <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                      Add Image
+                      Next &#9654;
                     </Text>
                   </Button>
-                </View>
-              </CardItem>
-              <Form style={{ justifyContent: 'center' }}>
-                <Item stackedLabel style={styles.formItem}>
-                  <Label style={styles.formLabels}>Machine Type &#x25bc;</Label>
-                  <Picker
-                    style={[vendorStyles.picker, styles.picker]}
-                    mode='dropdown'
-                    fontSize='18'
-                    placeholderStyle={{
-                      color: '#4d4d51',
-                      justifyContent: 'flex-start',
-                      fontSize: 18
-                    }}
-                    selectedValue={this.state.machineType}
-                    onValueChange={(itemValue, itemIndex) =>
-                      this.setState({ machineType: itemValue })
-                    }
+                </Form>
+              </Card>
+            </KeyboardAwareScrollView>
+          </ScrollView>
+        </SafeAreaView>
+      );
+    } else {
+      return (
+        <SafeAreaView style={vendorStyles.container}>
+          <ScrollView contentContainerStyle={styles.container}>
+            <KeyboardAwareScrollView>
+              <Card
+                style={{
+                  width: Dimensions.get('screen').width - 20,
+                  paddingBottom: 15
+                }}
+              >
+                <CardItem>
+                  <View style={vendorStyles.machineImage}>
+                    <Button
+                      block
+                      style={styles.loginButton}
+                      onPress={() => this.takePictures()}
+                    >
+                      <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
+                        Add Image
+                      </Text>
+                    </Button>
+                  </View>
+                </CardItem>
+                <CardItem>
+                  <ScrollView
+                    horizontal={true}
+                    style={{ flex: 1, flexDirection: 'row' }}
                   >
-                    <Picker.Item label='Tractor' value='Tractor' />
-                    <Picker.Item
-                      label='Tillage Equipment'
-                      value='Tillage Equipment'
+                    {this.showImages()}
+                  </ScrollView>
+                </CardItem>
+                <Form style={{ justifyContent: 'center' }}>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>
+                      Machine Type &#x25bc;
+                    </Label>
+                    <Picker
+                      style={[vendorStyles.picker, styles.picker]}
+                      mode='dropdown'
+                      fontSize='18'
+                      placeholderStyle={{
+                        color: '#4d4d51',
+                        justifyContent: 'flex-start',
+                        fontSize: 18
+                      }}
+                      selectedValue={this.state.machineType}
+                      onValueChange={(itemValue, itemIndex) =>
+                        this.setState({ machineType: itemValue })
+                      }
+                    >
+                      <Picker.Item label='Tractor' value='Tractor' />
+                      <Picker.Item
+                        label='Tillage Equipment'
+                        value='Tillage Equipment'
+                      />
+                      <Picker.Item
+                        label='Seeding Equipment'
+                        value='Seeding Equipment'
+                      />
+                      <Picker.Item
+                        label='Landscaping Equipment'
+                        value='Landscaping Equipment'
+                      />
+                      <Picker.Item
+                        label='Crop Protection'
+                        value='Crop Protection'
+                      />
+                      <Picker.Item
+                        label='Harvest Equipment'
+                        value='Harvest Equipment'
+                      />
+                      <Picker.Item label='Post Harvest' value='Post Harvest' />
+                    </Picker>
+                  </Item>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>Manufacturer</Label>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='default'
+                      style={[styles.inputRegister, styles.input]}
+                      onChangeText={manufacturer =>
+                        this.setState({ manufacturer })
+                      }
                     />
-                    <Picker.Item
-                      label='Seeding Equipment'
-                      value='Seeding Equipment'
+                  </Item>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>Model</Label>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='default'
+                      onChangeText={model => this.setState({ model })}
+                      style={[styles.inputRegister, styles.input]}
                     />
-                    <Picker.Item
-                      label='Landscaping Equipment'
-                      value='Landscaping Equipment'
+                  </Item>
+                  <Item stackedLabel style={styles.formItem}>
+                    <Label style={styles.formLabels}>
+                      Year of manufacturing
+                    </Label>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='number-pad'
+                      onChangeText={yearOfManufacturing =>
+                        this.setState({ yearOfManufacturing })
+                      }
+                      style={[styles.inputRegister, styles.input]}
                     />
-                    <Picker.Item
-                      label='Crop Protection'
-                      value='Crop Protection'
-                    />
-                    <Picker.Item
-                      label='Harvest Equipment'
-                      value='Harvest Equipment'
-                    />
-                    <Picker.Item label='Post Harvest' value='Post Harvest' />
-                  </Picker>
-                </Item>
-                <Item stackedLabel style={styles.formItem}>
-                  <Label style={styles.formLabels}>Manufacturer</Label>
-                  <Input
-                    autoCapitalize='none'
-                    autoCorrect={false}
-                    keyboardType='default'
-                    style={[styles.inputRegister, styles.input]}
-                    onChangeText={manufacturer =>
-                      this.setState({ manufacturer })
-                    }
-                  />
-                </Item>
-                <Item stackedLabel style={styles.formItem}>
-                  <Label style={styles.formLabels}>Model</Label>
-                  <Input
-                    autoCapitalize='none'
-                    autoCorrect={false}
-                    keyboardType='default'
-                    onChangeText={model => this.setState({ model })}
-                    style={[styles.inputRegister, styles.input]}
-                  />
-                </Item>
-                <Item stackedLabel style={styles.formItem}>
-                  <Label style={styles.formLabels}>Year of manufacturing</Label>
-                  <Input
-                    autoCapitalize='none'
-                    autoCorrect={false}
-                    keyboardType='number-pad'
-                    onChangeText={yearOfManufacturing =>
-                      this.setState({ yearOfManufacturing })
-                    }
-                    style={[styles.inputRegister, styles.input]}
-                  />
-                </Item>
-                <Button
-                  onPress={() => this.validateData()}
-                  block
-                  style={styles.loginButton}
-                >
-                  <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                    Next &#9654;
-                  </Text>
-                </Button>
-              </Form>
-            </Card>
-          </KeyboardAwareScrollView>
-        </ScrollView>
-      </SafeAreaView>
-    );
+                  </Item>
+                  <Button
+                    onPress={() => this.validateData()}
+                    block
+                    style={styles.loginButton}
+                  >
+                    <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
+                      Next &#9654;
+                    </Text>
+                  </Button>
+                </Form>
+              </Card>
+            </KeyboardAwareScrollView>
+          </ScrollView>
+        </SafeAreaView>
+      );
+    }
   }
 }

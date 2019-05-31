@@ -7,8 +7,8 @@ import {
   Alert,
   Dimensions,
   ActionSheetIOS,
-  FlatList,
-  Image
+  Image,
+  TouchableOpacity
 } from 'react-native';
 import {
   Item,
@@ -23,6 +23,7 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, vendorStyles } from '../../components/Styles';
 import { ImagePicker, Permissions } from 'expo';
+import CameraRollPicker from 'react-native-camera-roll-picker';
 
 export default class VendorListMachineScreen extends React.Component {
   constructor(props) {
@@ -46,36 +47,48 @@ export default class VendorListMachineScreen extends React.Component {
     }
   };
 
-  openCamera = () => {
-    ImagePicker.launchCameraAsync({
-      aspect: [1, 1],
-      quality: 0.2,
-      base64: true
-    })
-      .then(async result => {
-        if (!result.cancelled) {
-          await this.setState({
-            images: this.state.images.concat(result.uri)
-          });
-          Alert.alert(
-            'Add another picture? ',
-            null,
-            [
-              {
-                text: 'Yes',
-                onPress: () => this.openCamera()
-              },
-              { text: 'No' }
-            ],
-            { cancelable: false }
-          );
-        }
-        console.log(this.state.images);
+  openCamera = async () => {
+    const { status } = await Permissions.askAsync(
+      Permissions.CAMERA,
+      Permissions.CAMERA_ROLL
+    );
+    this.setState({
+      hasCameraPermission: status === 'granted',
+      hasGalleryPermission: status === 'granted'
+    });
+
+    if (this.state.hasCameraPermission && this.state.hasGalleryPermission) {
+      ImagePicker.launchCameraAsync({
+        aspect: [1, 1],
+        quality: 0.2,
+        base64: true
       })
-      .catch(error => console.log(error));
+        .then(async result => {
+          if (!result.cancelled) {
+            await this.setState({
+              images: this.state.images.concat(result.uri)
+            });
+            Alert.alert(
+              'Add another picture? ',
+              null,
+              [
+                {
+                  text: 'Yes',
+                  onPress: () => this.openCamera()
+                },
+                { text: 'No' }
+              ],
+              { cancelable: false }
+            );
+          }
+          console.log(this.state.images);
+        })
+        .catch(error => console.log(error));
+    }
   };
 
   takePictures = async () => {
+    //this method is not required now.
     const { status } = await Permissions.askAsync(
       Permissions.CAMERA,
       Permissions.CAMERA_ROLL
@@ -100,11 +113,7 @@ export default class VendorListMachineScreen extends React.Component {
               break;
             case 1:
               // 'Choose picture => Open CameraRoll'
-              break;
-            case 2:
-              // 'Cancel'
-              break;
-            default:
+              this.openGallery();
               break;
           }
         }
@@ -117,7 +126,7 @@ export default class VendorListMachineScreen extends React.Component {
 
   validateData = () => {
     if (
-      // this.state.images.length !== 0 &&
+      this.state.images.length !== 0 &&
       this.state.machineType !== '' &&
       this.state.manufacturer !== '' &&
       this.state.model !== '' &&
@@ -134,14 +143,10 @@ export default class VendorListMachineScreen extends React.Component {
       if (manufacturerRegex.test(manufacturer) === false) {
         Alert.alert('Invalid Manufacturer');
         return;
-      }
-
-      if (modelRegex.test(model) === false) {
+      } else if (modelRegex.test(model) === false) {
         Alert.alert('Invalid model');
         return;
-      }
-
-      if (yearRegex.test(yearOfManufacturing) === false) {
+      } else if (yearRegex.test(yearOfManufacturing) === false) {
         Alert.alert('Invalid year');
         return;
       } else if (
@@ -150,6 +155,10 @@ export default class VendorListMachineScreen extends React.Component {
       ) {
         Alert.alert('Valid year range is from 2000 to ' + d.getFullYear());
         return;
+      } else {
+        this.props.navigation.navigate('MachineDescription', {
+          listMachineData: this.state
+        });
       }
     } else {
       Alert.alert('Please fill all the fields');
@@ -157,32 +166,76 @@ export default class VendorListMachineScreen extends React.Component {
     }
   };
 
+  removeImage = index => {
+    Alert.alert('Delete this image?', null, [
+      {
+        text: 'Yes',
+        onPress: () => {
+          this.state.images.splice(index, 1);
+          // console.log(this.state.images);
+          this.forceUpdate();
+        }
+      },
+      { text: 'No' }
+    ]);
+  };
+
   showImages = () => {
     let temp_image = [];
     this.state.images.map((item, index) => {
+      let tempKey = item + '123';
       temp_image.push(
-        <View
-          key={index}
-          style={{
-            height: 100,
-            width: 100,
-            borderColor: '#dddddd'
-          }}
-        >
-          <Image
+        <View key={tempKey}>
+          <View
             key={index}
-            source={{ uri: item }}
             style={{
-              flex: 1,
-              flexDirection: 'row',
-              backgroundColor: 'silver',
-              padding: 5,
-              borderRadius: 5,
-              height: null,
-              width: null,
-              margin: 3
+              height: 100,
+              width: 100,
+              borderColor: '#dddddd'
             }}
-          />
+          >
+            <Image
+              key={index}
+              source={{ uri: item }}
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                backgroundColor: 'silver',
+                padding: 5,
+                borderRadius: 5,
+                height: null,
+                width: null,
+                margin: 3,
+                resizeMode: 'cover'
+              }}
+            />
+          </View>
+          <View key={index + 1}>
+            <TouchableOpacity
+              key={index + 2}
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignSelf: 'center',
+                width: '100%'
+              }}
+              onPress={() => {
+                this.removeImage(index);
+                this.forceUpdate();
+              }}
+            >
+              <Text
+                key={index + 3}
+                style={{
+                  alignSelf: 'center',
+                  color: '#CE3C3E',
+                  fontWeight: 'bold'
+                }}
+              >
+                Delete
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
     });
@@ -208,10 +261,10 @@ export default class VendorListMachineScreen extends React.Component {
                     <Button
                       block
                       style={styles.loginButton}
-                      onPress={() => this.takePictures()}
+                      onPress={() => this.openCamera()}
                     >
                       <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                        Add Image
+                        Add Images
                       </Text>
                     </Button>
                   </View>
@@ -326,10 +379,10 @@ export default class VendorListMachineScreen extends React.Component {
                     <Button
                       block
                       style={styles.loginButton}
-                      onPress={() => this.takePictures()}
+                      onPress={() => this.openCamera()}
                     >
                       <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                        Add Image
+                        Add Images
                       </Text>
                     </Button>
                   </View>

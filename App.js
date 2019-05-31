@@ -27,7 +27,6 @@ import VendorProfileScreen from './screens/Vendors/VendorProfileScreen';
 import VendorListMachineScreen from './screens/Vendors/VendorListMachineScreen_F';
 import VendorMachineDescriptionScreen from './screens/Vendors/VendorMachineDescription_F';
 import VendorMachinePricingScreen from './screens/Vendors/VendorMachinePricingScreen_F';
-import MyCamera from './screens/Vendors/Camera';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -53,8 +52,7 @@ const VendorAddMachine = createStackNavigator(
     Equipments: { screen: VendorEquipmentScreen },
     ListMachine: { screen: VendorListMachineScreen },
     MachineDescription: { screen: VendorMachineDescriptionScreen },
-    MachinePricing: { screen: VendorMachinePricingScreen },
-    MyCamera: { screen: MyCamera }
+    MachinePricing: { screen: VendorMachinePricingScreen }
   },
   {
     initialRouteName: 'Equipments',

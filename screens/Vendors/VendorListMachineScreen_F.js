@@ -23,7 +23,6 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, vendorStyles } from '../../components/Styles';
 import { ImagePicker, Permissions } from 'expo';
-import CameraRollPicker from 'react-native-camera-roll-picker';
 
 export default class VendorListMachineScreen extends React.Component {
   constructor(props) {
@@ -125,45 +124,45 @@ export default class VendorListMachineScreen extends React.Component {
   };
 
   validateData = () => {
-    if (
-      this.state.images.length !== 0 &&
-      this.state.machineType !== '' &&
-      this.state.manufacturer !== '' &&
-      this.state.model !== '' &&
-      this.state.yearOfManufacturing !== ''
-    ) {
-      const manufacturerRegex = RegExp('^[a-zA-Z]{3,}$', 'g');
-      const modelRegex = RegExp('[\\w\\d]{3,}', 'g');
-      const yearRegex = RegExp('^[\\d]{4}', 'g');
-
-      const { manufacturer, model, yearOfManufacturing } = this.state;
-
-      const d = new Date();
-
-      if (manufacturerRegex.test(manufacturer) === false) {
-        Alert.alert('Invalid Manufacturer');
-        return;
-      } else if (modelRegex.test(model) === false) {
-        Alert.alert('Invalid model');
-        return;
-      } else if (yearRegex.test(yearOfManufacturing) === false) {
-        Alert.alert('Invalid year');
-        return;
-      } else if (
-        yearOfManufacturing < 2000 ||
-        yearOfManufacturing > d.getFullYear()
-      ) {
-        Alert.alert('Valid year range is from 2000 to ' + d.getFullYear());
-        return;
-      } else {
-        this.props.navigation.navigate('MachineDescription', {
-          listMachineData: this.state
-        });
-      }
-    } else {
-      Alert.alert('Please fill all the fields');
-      return;
-    }
+    this.props.navigation.navigate('MachineDescription', {
+      listMachineData: this.state
+    });
+    // if (
+    //   this.state.images.length !== 0 &&
+    //   this.state.machineType !== '' &&
+    //   this.state.manufacturer !== '' &&
+    //   this.state.model !== '' &&
+    //   this.state.yearOfManufacturing !== ''
+    // ) {
+    //   const manufacturerRegex = RegExp('^[a-zA-Z]{3,}$', 'g');
+    //   const modelRegex = RegExp('[\\w\\d]{3,}', 'g');
+    //   const yearRegex = RegExp('^[\\d]{4}', 'g');
+    //   const { manufacturer, model, yearOfManufacturing } = this.state;
+    //   const d = new Date();
+    //   if (manufacturerRegex.test(manufacturer) === false) {
+    //     Alert.alert('Invalid Manufacturer');
+    //     return;
+    //   } else if (modelRegex.test(model) === false) {
+    //     Alert.alert('Invalid model');
+    //     return;
+    //   } else if (yearRegex.test(yearOfManufacturing) === false) {
+    //     Alert.alert('Invalid year');
+    //     return;
+    //   } else if (
+    //     yearOfManufacturing < 2000 ||
+    //     yearOfManufacturing > d.getFullYear()
+    //   ) {
+    //     Alert.alert('Valid year range is from 2000 to ' + d.getFullYear());
+    //     return;
+    //   } else {
+    //     this.props.navigation.navigate('MachineDescription', {
+    //       listMachineData: this.state
+    //     });
+    //   }
+    // } else {
+    //   Alert.alert('Please fill all the fields');
+    //   return;
+    // }
   };
 
   removeImage = index => {
@@ -354,7 +353,7 @@ export default class VendorListMachineScreen extends React.Component {
                     style={styles.loginButton}
                   >
                     <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                      Next &#9654;
+                      Next (1/3) &#9654;
                     </Text>
                   </Button>
                 </Form>
@@ -480,7 +479,7 @@ export default class VendorListMachineScreen extends React.Component {
                     style={styles.loginButton}
                   >
                     <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                      Next &#9654;
+                      Next (1/3) &#9654;
                     </Text>
                   </Button>
                 </Form>

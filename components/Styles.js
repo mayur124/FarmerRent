@@ -96,7 +96,11 @@ const vendorStyles = {
   cameraView: {
     flex: 1
   },
-  comp: {}
+  subHeadingText: {
+    fontSize: 20,
+    color: '#0A3D62',
+    fontWeight: 'bold'
+  }
 };
 
 export { styles, vendorStyles };

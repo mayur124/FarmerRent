@@ -9,19 +9,12 @@ import {
   Switch,
   ActivityIndicator
 } from 'react-native';
-import {
-  Item,
-  Card,
-  CardItem,
-  Form,
-  Input,
-  Label,
-  Button,
-  Picker,
-  Textarea
-} from 'native-base';
+import { Item, Card, Form, Input, Label, Button, Picker } from 'native-base';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { styles, vendorStyles } from '../../components/Styles';
+import * as firebase from 'firebase';
+import uuid from 'uuid';
+
 export default class VendorMachinePricingScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -30,8 +23,11 @@ export default class VendorMachinePricingScreen extends React.Component {
       price: '',
       policy: '',
       securityDeposit: false,
-      isUploading: false
+      isUploading: false,
+      i: 0
     };
+    this.secondScreenData = {};
+    this.firstScreenData = {};
   }
 
   static navigationOptions = {
@@ -44,7 +40,125 @@ export default class VendorMachinePricingScreen extends React.Component {
     }
   };
 
-  validateData = () => {};
+  validateData = () => {
+    if (this.state.pricingType !== '' && this.state.price !== '') {
+      this.setState({ isUploading: true });
+      this.uploadMachineData();
+    } else {
+      Alert.alert('Please enter * marked fields');
+      return;
+    }
+  };
+
+  uploadMachineData = async () => {
+    let tempData = Object.assign(
+      {},
+      this.firstScreenData,
+      this.secondScreenData,
+      this.state
+    );
+    // console.log('finalData:\n', finalData);
+    // let email = firebase.auth().currentUser.email;
+
+    const storageRef = firebase.storage().ref();
+    const vEmail = firebase.auth().currentUser.email;
+    const emailRegex = '\\.';
+    const dbRef = firebase
+      .database()
+      .ref(
+        'vendorAds/' + vEmail.replace(new RegExp(emailRegex, 'g'), '_') + '/'
+      );
+
+    let { tags } = tempData;
+    let tagArray = tags.split(' ').filter(item => item !== '');
+    let tagObject = { tags: tagArray };
+    let finalData = {
+      condition: tempData.condition,
+      description: tempData.description,
+      horsePower: tempData.horsePower,
+      machineType: tempData.machineType,
+      manufacturer: tempData.manufacturer,
+      model: tempData.model,
+      policy: tempData.policy,
+      price: tempData.price,
+      pricingType: tempData.pricingType,
+      securityDeposit: tempData.securityDeposit,
+      yearOfManufacturing: tempData.yearOfManufacturing
+    };
+
+    Object.assign(finalData, tagObject);
+
+    let { images } = tempData;
+    let imagePathArray = [];
+    let totalImages = images.length;
+    console.log(totalImages);
+    let tempImageObject = {};
+
+    const imagesPromise = images.map(image => {
+      return new Promise((resolve, reject) => {
+        this.uploadImageAsync(image, storageRef, vEmail)
+          .then(async url => {
+            if (url) {
+              await console.log('url in abc: ', url);
+              await imagePathArray.push(url);
+              tempImageObject = { imagePaths: imagePathArray };
+              console.log('tempImageObject: \n', tempImageObject);
+              return resolve('Done');
+            } else {
+              return reject('Not done');
+            }
+          })
+          .catch(error => console.error(error));
+      });
+    });
+
+    Promise.all(imagesPromise).then(async output => {
+      await Object.assign(finalData, tempImageObject);
+      await this.uploadToFirebase(dbRef, finalData);
+    });
+  };
+
+  uploadToFirebase = async (dbRef, finalData) => {
+    await dbRef.push(finalData, error => {
+      if (!error) {
+        Alert.alert('Post uploaded successfully');
+        this.setState({ isUploading: false });
+        this.props.navigation.replace('Equipments');
+      }
+    });
+  };
+
+  uploadImageAsync = async (uri, storageReference, vendorEmail) => {
+    const parts = uri.split('.');
+    const fileExtension = parts[parts.length - 1];
+
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function(err) {
+        console.log(err);
+        reject(new TypeError('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+
+    //upload part
+    const ref = storageReference
+      .child('VendorMachines')
+      .child('' + vendorEmail)
+      .child(uuid.v4() + '.' + fileExtension);
+
+    const snapshot = await ref.put(blob);
+
+    //close blob
+    blob.close();
+
+    return await snapshot.ref.getDownloadURL();
+  };
 
   toggleDeposit = () => {
     this.setState({
@@ -52,12 +166,24 @@ export default class VendorMachinePricingScreen extends React.Component {
     });
   };
 
+  componentDidMount() {
+    this.firstScreenData = this.props.navigation.getParam('firstScreenData');
+    this.secondScreenData = this.props.navigation.getParam('secondScreenData');
+
+    // console.log(
+    //   'FirstScreenData: \n',
+    //   this.firstScreenData,
+    //   '\n\nSecondScreenData: \n',
+    //   this.secondScreenData
+    // );
+  }
+
   render() {
     if (this.state.isUploading) {
       return (
         <View style={styles.container}>
           <ActivityIndicator size='large' />
-          <Text>Your machine ad is being uploaded</Text>
+          <Text>Please wait...</Text>
         </View>
       );
     }
@@ -75,7 +201,7 @@ export default class VendorMachinePricingScreen extends React.Component {
                 <Form style={{ justifyContent: 'center' }}>
                   <Item stackedLabel style={styles.formItem}>
                     <Label style={styles.formLabels}>
-                      Pricing method &#x25bc;
+                      *Pricing method &#x25bc;
                     </Label>
                     <Picker
                       style={[vendorStyles.picker, styles.picker]}
@@ -103,7 +229,7 @@ export default class VendorMachinePricingScreen extends React.Component {
                   </Item>
 
                   <Item stackedLabel style={styles.formItem}>
-                    <Label style={styles.formLabels}>Price &#8377;</Label>
+                    <Label style={styles.formLabels}>*Price &#8377;</Label>
                     <Input
                       autoCapitalize='none'
                       autoCorrect={false}
@@ -134,7 +260,7 @@ export default class VendorMachinePricingScreen extends React.Component {
                     <Input
                       autoCapitalize='none'
                       autoCorrect={false}
-                      keyboardType='decimal-pad'
+                      keyboardType='default'
                       style={[styles.inputRegister, styles.input]}
                       onChangeText={policy => this.setState({ policy })}
                     />

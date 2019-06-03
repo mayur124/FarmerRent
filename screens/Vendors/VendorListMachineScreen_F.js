@@ -80,7 +80,7 @@ export default class VendorListMachineScreen extends React.Component {
               { cancelable: false }
             );
           }
-          console.log(this.state.images);
+          // console.log(this.state.images);
         })
         .catch(error => console.log(error));
     }
@@ -124,45 +124,42 @@ export default class VendorListMachineScreen extends React.Component {
   };
 
   validateData = () => {
-    this.props.navigation.navigate('MachineDescription', {
-      listMachineData: this.state
-    });
-    // if (
-    //   this.state.images.length !== 0 &&
-    //   this.state.machineType !== '' &&
-    //   this.state.manufacturer !== '' &&
-    //   this.state.model !== '' &&
-    //   this.state.yearOfManufacturing !== ''
-    // ) {
-    //   const manufacturerRegex = RegExp('^[a-zA-Z]{3,}$', 'g');
-    //   const modelRegex = RegExp('[\\w\\d]{3,}', 'g');
-    //   const yearRegex = RegExp('^[\\d]{4}', 'g');
-    //   const { manufacturer, model, yearOfManufacturing } = this.state;
-    //   const d = new Date();
-    //   if (manufacturerRegex.test(manufacturer) === false) {
-    //     Alert.alert('Invalid Manufacturer');
-    //     return;
-    //   } else if (modelRegex.test(model) === false) {
-    //     Alert.alert('Invalid model');
-    //     return;
-    //   } else if (yearRegex.test(yearOfManufacturing) === false) {
-    //     Alert.alert('Invalid year');
-    //     return;
-    //   } else if (
-    //     yearOfManufacturing < 2000 ||
-    //     yearOfManufacturing > d.getFullYear()
-    //   ) {
-    //     Alert.alert('Valid year range is from 2000 to ' + d.getFullYear());
-    //     return;
-    //   } else {
-    //     this.props.navigation.navigate('MachineDescription', {
-    //       listMachineData: this.state
-    //     });
-    //   }
-    // } else {
-    //   Alert.alert('Please fill all the fields');
-    //   return;
-    // }
+    if (
+      this.state.images.length !== 0 &&
+      this.state.machineType !== '' &&
+      this.state.manufacturer !== '' &&
+      this.state.model !== '' &&
+      this.state.yearOfManufacturing !== ''
+    ) {
+      const manufacturerRegex = RegExp('^[a-zA-Z]{3,}$', 'g');
+      const modelRegex = RegExp('[\\w\\d]{3,}', 'g');
+      const yearRegex = RegExp('^[\\d]{4}', 'g');
+      const { manufacturer, model, yearOfManufacturing } = this.state;
+      const d = new Date();
+      if (manufacturerRegex.test(manufacturer) === false) {
+        Alert.alert('Invalid Manufacturer');
+        return;
+      } else if (modelRegex.test(model) === false) {
+        Alert.alert('Invalid model');
+        return;
+      } else if (yearRegex.test(yearOfManufacturing) === false) {
+        Alert.alert('Invalid year');
+        return;
+      } else if (
+        yearOfManufacturing < 2000 ||
+        yearOfManufacturing > d.getFullYear()
+      ) {
+        Alert.alert('Valid year range is from 2000 to ' + d.getFullYear());
+        return;
+      } else {
+        this.props.navigation.navigate('MachineDescription', {
+          listMachineData: this.state
+        });
+      }
+    } else {
+      Alert.alert('Please fill all the fields');
+      return;
+    }
   };
 
   removeImage = index => {
@@ -238,7 +235,7 @@ export default class VendorListMachineScreen extends React.Component {
         </View>
       );
     });
-    console.log('state images: ', this.state.images);
+    // console.log('state images: ', this.state.images);
 
     return temp_image;
   };

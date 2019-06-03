@@ -49,7 +49,28 @@ export default class VendorMachineDescriptionScreen extends React.Component {
   }
 
   validateData = () => {
-    this.props.navigation.navigate('MachinePricing');
+    if (
+      this.state.horsePower !== '' &&
+      this.state.condition !== '' &&
+      this.state.description !== ''
+    ) {
+      const hpRegex = RegExp('^\\d\\d+(\\.\\d+)?$', 'g');
+      if (hpRegex.test(this.state.horsePower) === false) {
+        Alert.alert('Invalid horse power entered');
+        return;
+      } else if (this.state.description.length <= 20) {
+        Alert.alert('Description should be of at-least 20 characters');
+        return;
+      }
+    } else {
+      Alert.alert('Please fill * marked fields');
+      return;
+    }
+
+    this.props.navigation.navigate('MachinePricing', {
+      firstScreenData: this.listItem,
+      secondScreenData: this.state
+    });
   };
 
   render() {
@@ -70,7 +91,7 @@ export default class VendorMachineDescriptionScreen extends React.Component {
                 <CardItem />
                 <Form style={{ justifyContent: 'center' }}>
                   <Item stackedLabel style={styles.formItem}>
-                    <Label style={styles.formLabels}>Condition &#x25bc;</Label>
+                    <Label style={styles.formLabels}>*Condition &#x25bc;</Label>
                     <Picker
                       style={[vendorStyles.picker, styles.picker]}
                       mode='dropdown'
@@ -91,7 +112,7 @@ export default class VendorMachineDescriptionScreen extends React.Component {
                   </Item>
 
                   <Item stackedLabel style={styles.formItem}>
-                    <Label style={styles.formLabels}>Horse Power (hp)</Label>
+                    <Label style={styles.formLabels}>*Horse Power (hp)</Label>
                     <Input
                       autoCapitalize='none'
                       autoCorrect={false}
@@ -124,10 +145,13 @@ export default class VendorMachineDescriptionScreen extends React.Component {
                   </Item>
 
                   <CardItem>
-                    <Text style={vendorStyles.subHeadingText}>Description</Text>
+                    <Text style={vendorStyles.subHeadingText}>
+                      *Description
+                    </Text>
                   </CardItem>
                   <Item style={styles.formItem}>
                     <Textarea
+                      placeholder='Minimum 20 characters'
                       rowSpan={5}
                       style={{
                         width: '95%',

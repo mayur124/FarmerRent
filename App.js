@@ -22,6 +22,8 @@ import VendorEquipmentScreen from './screens/Vendors/VendorEquipmentScreen';
 import VendorBookingsScreen from './screens/Vendors/VendorBookingsScreen';
 import VendorEarningScreen from './screens/Vendors/VendorEarningScreen';
 import VendorProfileScreen from './screens/Vendors/VendorProfileScreen';
+import VendorMachineScreen from './screens/Vendors/VendorMachinesScreen';
+import VendorMachineDetail from './screens/Vendors/VendorMachineDetail';
 
 //Vendor Form pages
 import VendorListMachineScreen from './screens/Vendors/VendorListMachineScreen_F';
@@ -52,7 +54,9 @@ const VendorAddMachine = createStackNavigator(
     Equipments: { screen: VendorEquipmentScreen },
     ListMachine: { screen: VendorListMachineScreen },
     MachineDescription: { screen: VendorMachineDescriptionScreen },
-    MachinePricing: { screen: VendorMachinePricingScreen }
+    MachinePricing: { screen: VendorMachinePricingScreen },
+    VendorMachines: { screen: VendorMachineScreen },
+    MachineDetail: { screen: VendorMachineDetail }
   },
   {
     initialRouteName: 'Equipments',
@@ -98,7 +102,8 @@ const VendorNavigator = createMaterialBottomTabNavigator(
   },
   {
     // initialRouteName: 'Equipments',
-    activeTintColor: '#453421'
+    activeTintColor: '#453421',
+    shifting: false
   }
 );
 

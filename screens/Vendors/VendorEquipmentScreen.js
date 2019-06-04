@@ -7,7 +7,6 @@ import {
   Dimensions
 } from 'react-native';
 import { styles, vendorStyles } from '../../components/Styles';
-import HorizontalLine from '../../components/HorizontalLine';
 import { Button } from 'native-base';
 import { FontAwesome } from '@expo/vector-icons';
 import * as firebase from 'firebase';
@@ -38,7 +37,7 @@ export default class VendorEquipmentScreen extends React.Component {
 
   viewMachines = () => {
     // alert("View machine")
-    this.props.navigation.navigate('vendorViewMachines');
+    this.props.navigation.navigate('VendorMachines');
   };
 
   componentDidMount() {

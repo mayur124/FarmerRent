@@ -59,7 +59,7 @@ const VendorAddMachine = createStackNavigator(
     MachineDetail: { screen: VendorMachineDetail }
   },
   {
-    initialRouteName: 'Equipments',
+    initialRouteName: 'VendorMachines',
     navigationOptions: {
       tabBarLabel: 'Equipments',
       tabBarIcon: ({ tintColor }) => (
@@ -102,8 +102,9 @@ const VendorNavigator = createMaterialBottomTabNavigator(
   },
   {
     // initialRouteName: 'Equipments',
-    activeTintColor: '#453421',
-    shifting: false
+    activeTintColor: '#D9AE3C',
+    shifting: false,
+    barStyle: { backgroundColor: '#453421' }
   }
 );
 

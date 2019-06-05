@@ -5,12 +5,13 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Dimensions,
-  ScrollView,
+  Image,
   TouchableWithoutFeedback,
   Keyboard,
-  FlatList
+  FlatList,
+  ScrollView
 } from 'react-native';
-import { Card, Button, Input, Item, CardItem } from 'native-base';
+import { Card, Button, Input, Item, CardItem, Icon } from 'native-base';
 import { styles, vendorStyles } from '../../components/Styles';
 import * as firebase from 'firebase';
 
@@ -21,7 +22,9 @@ export default class VendorMachineScreen extends React.Component {
     super(props);
     this.state = {
       hasPostedAnyAd: null,
-      adObject: {}
+      adsArray: [],
+      initialImage: '',
+      visible: false
     };
     _isActive = true;
   }
@@ -34,27 +37,33 @@ export default class VendorMachineScreen extends React.Component {
     // console.log(currentFirebaseVendor);
 
     if ((this._isMounted = true)) {
-      let dbReference = firebase.database().ref('vendorAds');
-      dbReference.once('value', snapshot => {
-        let vendors = Object.keys(snapshot.val());
-        let currentVendor_Array = vendors.filter(
-          vendor => vendor === currentFirebaseVendor
-        );
-        // console.log(currentVendor[0]);
-        let currentVendor = currentVendor_Array[0];
-        if (currentVendor.length) {
-          this.setState({ hasPostedAnyAd: true });
-        } else {
-          this.setState({ hasPostedAnyAd: false });
-        }
-        dbReference
-          .child(currentVendor)
-          .once('value', async vendorAdDetails => {
-            let tempAdObject = vendorAdDetails.exportVal();
-            await this.setState({ adObject: tempAdObject });
-            console.log('this.state.adObject: ', this.state.adObject);
-            // console.log(Object.entries(this.state.adObject).length);
+      let dbReference = firebase
+        .database()
+        .ref('vendorAds/' + currentFirebaseVendor);
+      dbReference.once('value', async snapshot => {
+        if (snapshot.val()) {
+          let adKeys = await Object.keys(snapshot.val());
+          let adValues = await Object.values(snapshot.val());
+          // console.log(adKeys);
+          // console.log(adValues);
+          adValues.map((adData, index) => {
+            adData['key'] = adKeys[index];
+            // console.log('------------------------------------------');
+            // console.log(adData);
+            // console.log('------------------------------------------');
           });
+          await this.setState({
+            hasPostedAnyAd: true,
+            adsArray: adValues
+          });
+
+          // console.log(this.state.adObject);
+        } else {
+          await this.setState({
+            hasPostedAnyAd: false
+          });
+          console.log('No ads present');
+        }
       });
     }
   }
@@ -73,11 +82,12 @@ export default class VendorMachineScreen extends React.Component {
     }
   };
 
+  toggleSearch = () => {
+    this.setState({ visible: this.state.visible === false ? true : false });
+  };
+
   render() {
-    if (
-      this.state.hasPostedAnyAd === null ||
-      Object.entries(this.state.adObject).length === 0
-    ) {
+    if (this.state.hasPostedAnyAd === null) {
       return (
         <View style={styles.container}>
           <ActivityIndicator size='large' />
@@ -99,49 +109,65 @@ export default class VendorMachineScreen extends React.Component {
     }
 
     return (
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <SafeAreaView style={vendorStyles.container}>
-          <Card
-            style={{
-              width: Dimensions.get('screen').width - 20
-            }}
-          >
-            <CardItem>
-              <Item style={[styles.formItem, { flexDirection: 'row' }]}>
-                <Input
-                  autoCapitalize='none'
-                  style={[styles.inputRegister, styles.input]}
-                  placeholder='E.g. Tractor'
-                />
-                <Button
-                  block
-                  style={[
-                    styles.loginButton,
-                    {
-                      width: null,
-                      paddingHorizontal: 10,
-                      marginTop: 0,
-                      marginBottom: 10
-                    }
-                  ]}
-                >
-                  <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
-                    Search
-                  </Text>
-                </Button>
-              </Item>
-            </CardItem>
-          </Card>
-          <ScrollView contentContainerStyle={styles.container}>
+      <View style={vendorStyles.container}>
+        <Item
+          style={[
+            styles.formItem,
             {
-              //   Object.keys(this.state.adObject).map(item => {
-              //   return <Text key={item}>{Object.values(item)}</Text>;
-              // })
+              flexDirection: 'row',
+              width: Dimensions.get('screen').width - 20,
+              marginTop: 10
             }
-            <FlatList />
-          </ScrollView>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
+          ]}
+        >
+          <Input
+            autoCapitalize='none'
+            style={[styles.inputRegister, styles.input]}
+            placeholder='E.g. Tractor'
+          />
+          <Button
+            block
+            style={[
+              styles.loginButton,
+              {
+                width: null,
+                paddingHorizontal: 10,
+                marginTop: 0,
+                marginBottom: 10
+              }
+            ]}
+          >
+            <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>Search</Text>
+          </Button>
+        </Item>
+        <FlatList
+          contentContainerStyle={{
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+          data={this.state.adsArray}
+          renderItem={({ item }) => {
+            return (
+              <Card style={{ width: Dimensions.get('screen').width - 20 }}>
+                <CardItem>
+                  <Image
+                    style={{
+                      borderRadius: 2,
+                      borderColor: '#EAF0F1',
+                      backgroundColor: '#f4f4f4',
+                      height: 100,
+                      width: 100
+                    }}
+                    source={{ uri: item.imagePaths[0] }}
+                  />
+                  <Text>{item.machineType}</Text>
+                </CardItem>
+              </Card>
+            );
+          }}
+          keyExtractor={(item, index) => item.key.toString()}
+        />
+      </View>
     );
   }
 }

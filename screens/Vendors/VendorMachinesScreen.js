@@ -2,14 +2,11 @@ import React from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   ActivityIndicator,
   Dimensions,
   Image,
-  TouchableWithoutFeedback,
-  Keyboard,
-  FlatList,
-  ScrollView
+  TouchableOpacity,
+  FlatList
 } from 'react-native';
 import { Card, Button, Input, Item, CardItem, Icon } from 'native-base';
 import { styles, vendorStyles } from '../../components/Styles';
@@ -57,7 +54,7 @@ export default class VendorMachineScreen extends React.Component {
             adsArray: adValues
           });
 
-          // console.log(this.state.adObject);
+          // console.log(this.state.adsArray);
         } else {
           await this.setState({
             hasPostedAnyAd: false
@@ -122,23 +119,9 @@ export default class VendorMachineScreen extends React.Component {
         >
           <Input
             autoCapitalize='none'
-            style={[styles.inputRegister, styles.input]}
-            placeholder='E.g. Tractor'
+            style={[styles.input, { alignContent: 'center' }]}
+            placeholder='Search - E.g. Tractor'
           />
-          <Button
-            block
-            style={[
-              styles.loginButton,
-              {
-                width: null,
-                paddingHorizontal: 10,
-                marginTop: 0,
-                marginBottom: 10
-              }
-            ]}
-          >
-            <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>Search</Text>
-          </Button>
         </Item>
         <FlatList
           contentContainerStyle={{
@@ -148,24 +131,48 @@ export default class VendorMachineScreen extends React.Component {
           data={this.state.adsArray}
           renderItem={({ item }) => {
             return (
-              <Card style={{ width: Dimensions.get('screen').width - 20 }}>
-                <CardItem>
-                  <Image
-                    style={{
-                      borderRadius: 2,
-                      borderColor: '#EAF0F1',
-                      backgroundColor: '#f4f4f4',
-                      height: 100,
-                      width: 100
-                    }}
-                    source={{ uri: item.imagePaths[0] }}
-                  />
-                  <Text>{item.machineType}</Text>
-                </CardItem>
-              </Card>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('MachineDetail', {
+                    item: item
+                  });
+                }}
+              >
+                <Card style={{ width: Dimensions.get('screen').width - 20 }}>
+                  <CardItem>
+                    <Image
+                      style={{
+                        borderRadius: 2,
+                        borderColor: '#EAF0F1',
+                        backgroundColor: '#f4f4f4',
+                        height: 100,
+                        width: 100
+                      }}
+                      source={{ uri: item.imagePaths[0] }}
+                    />
+                    <View style={{ flexDirection: 'column', marginLeft: 10 }}>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: 'bold',
+                          flexWrap: 'wrap'
+                        }}
+                      >
+                        {item.machineType}
+                      </Text>
+                      <Text style={{ fontWeight: 'bold', marginTop: 10 }}>
+                        Pricing type:
+                      </Text>
+                      <Text>{item.pricingType}</Text>
+                      <Text style={{ fontWeight: 'bold' }}>Price:</Text>
+                      <Text>&#8377;{item.price}</Text>
+                    </View>
+                  </CardItem>
+                </Card>
+              </TouchableOpacity>
             );
           }}
-          keyExtractor={(item, index) => item.key.toString()}
+          keyExtractor={item => item.key.toString()}
         />
       </View>
     );

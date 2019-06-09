@@ -47,16 +47,12 @@ export default class VendorListMachineScreen extends React.Component {
   };
 
   openCamera = async () => {
-    const { status } = await Permissions.askAsync(
-      Permissions.CAMERA,
-      Permissions.CAMERA_ROLL
-    );
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({
-      hasCameraPermission: status === 'granted',
-      hasGalleryPermission: status === 'granted'
+      hasCameraPermission: status === 'granted'
     });
 
-    if (this.state.hasCameraPermission && this.state.hasGalleryPermission) {
+    if (this.state.hasCameraPermission) {
       ImagePicker.launchCameraAsync({
         aspect: [1, 1],
         quality: 0.2,

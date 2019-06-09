@@ -100,6 +100,10 @@ const vendorStyles = {
     fontSize: 20,
     color: '#0A3D62',
     fontWeight: 'bold'
+  },
+  displayLabels: {
+    fontSize: 18,
+    fontWeight: 'bold'
   }
 };
 

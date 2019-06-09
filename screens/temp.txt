@@ -1,0 +1,67 @@
+<Button
+  key={Math.random() * Math.random()}
+  transparent
+  danger
+  style={{
+    alignSelf: 'center',
+    justifyContent: 'center'
+  }}
+>
+  <Text
+    key={Math.random() * Math.random()}
+    style={{
+      color: '#CE3C3E',
+      fontWeight: 'bold'
+    }}
+  >
+    Delete
+  </Text>
+</Button>
+
+// To call method from header
+
+componentDidMount() {
+    this.props.navigation.setParams({
+      toggleEdit: this.toggleEdit.bind(this)
+    });
+  }
+
+static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    return {
+      title: 'Details',
+      headerTitleStyle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#D9AE3C',
+        textAlign: 'center'
+      },
+      headerRight: (
+          <Button
+            transparent
+            full
+            onPress={() => {
+              params.toggleEdit();
+            }}
+          >
+            <Text
+              style={{
+                color: '#D9AE3C',
+                textAlign: 'center',
+                fontSize: 16
+              }}
+            >
+              Done
+            </Text>
+          </Button>
+      )
+    };
+  };
+
+  toggleEdit() {
+    this.setState({
+      editComponentStyle:
+        this.state.editComponentStyle === 'none' ? 'flex' : 'none',
+    });
+    this.forceUpdate();
+  }

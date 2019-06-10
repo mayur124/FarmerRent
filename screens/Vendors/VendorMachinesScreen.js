@@ -63,6 +63,7 @@ export default class VendorMachineScreen extends React.Component {
         }
       });
     }
+    this.forceUpdate();
   }
 
   componentWillUnmount() {

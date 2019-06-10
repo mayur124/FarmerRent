@@ -6,7 +6,7 @@ import {
   ScrollView,
   Image,
   Switch,
-  TouchableOpacity,
+  Alert,
   Dimensions
 } from 'react-native';
 import {
@@ -16,18 +16,18 @@ import {
   Item,
   Label,
   Picker,
-  Input,
-  Textarea
+  Input
 } from 'native-base';
 import { styles, vendorStyles } from '../../components/Styles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { ImagePicker, Permissions } from 'expo';
+import * as firebase from 'firebase';
 
 export default class VendorMachineDetail extends React.Component {
   constructor(props) {
     super(props);
     self = this;
     this.state = {
-      data: {},
       isLoading: true,
       editDoneText: 'Edit',
       editComponentStyle: 'none',
@@ -38,8 +38,17 @@ export default class VendorMachineDetail extends React.Component {
   }
 
   async componentDidMount() {
-    await this.setState({ data: this.props.navigation.getParam('item') });
-    await this.setState({ isLoading: false });
+    await Object.assign(this.state, this.props.navigation.getParam('item'));
+    // await this.setState({ data: this.props.navigation.getParam('item') });
+    await this.setState({
+      isLoading: false,
+      editDoneText: 'Edit',
+      editComponentStyle: 'none',
+      editBtnStyle: 'flex',
+      doneBtnStyle: 'none',
+      editable: false
+    });
+    // console.log(this.state.editDoneText);
   }
 
   static navigationOptions = {
@@ -54,7 +63,7 @@ export default class VendorMachineDetail extends React.Component {
 
   showImages = () => {
     let temp_image = [];
-    this.state.data.imagePaths.map((item, index) => {
+    this.state.imagePaths.map((item, index) => {
       let tempKey = item + '123';
       temp_image.push(
         <View key={tempKey}>
@@ -105,19 +114,127 @@ export default class VendorMachineDetail extends React.Component {
         </View>
       );
     });
-    // console.log('state images: ', this.state.images);
+    // console.log('state imagePaths: ', this.state.imagePaths);
 
     return temp_image;
   };
 
-  toggleEdit = () => {
+  openCamera = async () => {
+    const { status } = await Permissions.askAsync(
+      Permissions.CAMERA,
+      Permissions.CAMERA_ROLL
+    );
+    this.setState({
+      hasCameraPermission: status === 'granted',
+      hasGalleryPermission: status === 'granted'
+    });
+
+    if (this.state.hasCameraPermission) {
+      ImagePicker.launchCameraAsync({
+        aspect: [1, 1],
+        quality: 0.2,
+        base64: true
+      })
+        .then(async result => {
+          if (!result.cancelled) {
+            await this.setState({
+              imagePaths: this.state.imagePaths.concat(result.uri)
+            });
+            Alert.alert(
+              'Add another picture? ',
+              null,
+              [
+                {
+                  text: 'Yes',
+                  onPress: () => this.openCamera()
+                },
+                { text: 'No' }
+              ],
+              { cancelable: false }
+            );
+          }
+          // console.log(this.state.imagePaths);
+        })
+        .catch(error => console.log(error));
+    }
+  };
+
+  removeImage = index => {
+    Alert.alert('Delete this image?', null, [
+      {
+        text: 'Yes',
+        onPress: () => {
+          this.state.imagePaths.splice(index, 1);
+          // console.log(this.state.imagePaths);
+          this.forceUpdate();
+        }
+      },
+      { text: 'No' }
+    ]);
+  };
+
+  toggleEdit = async () => {
     this.setState({
       editComponentStyle:
         this.state.editComponentStyle === 'none' ? 'flex' : 'none',
       editDoneText: this.state.editDoneText === 'Edit' ? 'Done' : 'Edit',
       editable: this.state.editable === false ? true : false
     });
-    if (this.state.editDoneText === 'Done') alert('Done');
+    if (this.state.editDoneText === 'Done') {
+      // let username = firebase
+      //   .auth()
+      //   .currentUser.email.replace(new RegExp('\\.', 'g'), '_');
+      // const dbRef = firebase
+      //   .database()
+      //   .ref('vendorAds/' + username + '/' + this.state.key);
+      // let { key, ...uData } = this.state;
+      // // console.log('key\n',key);
+      // // console.log('uData\n',uData);
+
+      // dbRef.set(uData, error => {
+      //   if (!error) this.props.navigation.replace('VendorMachines');
+      // });
+      const httpImages = this.state.imagePaths.filter(image =>
+        image.includes('https://')
+      );
+      const newImages = this.state.imagePaths.filter(image =>
+        image.includes('file')
+      );
+      // console.log('httpImages\n', httpImages, 'newImages\n', newImages);
+    }
+  };
+
+  deleteMachine = () => {
+    Alert.alert('Delete this machine ?', null, [
+      {
+        text: 'Yes',
+        onPress: async () => {
+          let { key } = this.state;
+          let username = firebase
+            .auth()
+            .currentUser.email.replace(new RegExp('\\.', 'g'), '_');
+          const dbRef = firebase
+            .database()
+            .ref('vendorAds/' + username + '/' + key);
+          await dbRef.remove(error => {
+            if (!error) {
+              this.props.navigation.replace('VendorMachines');
+            } else {
+              Alert.alert(error.message);
+            }
+          });
+        }
+      },
+      {
+        text: 'No'
+      }
+    ]);
+  };
+
+  toggleDeposit = () => {
+    this.setState({
+      securityDeposit: this.state.securityDeposit === false ? true : false
+    });
   };
 
   render() {
@@ -162,9 +279,22 @@ export default class VendorMachineDetail extends React.Component {
               paddingBottom: 20
             }}
           >
+            <CardItem style={{ display: this.state.editComponentStyle }}>
+              <View style={vendorStyles.machineImage}>
+                <Button
+                  block
+                  style={styles.loginButton}
+                  onPress={() => this.openCamera()}
+                >
+                  <Text style={{ color: '#D9AE3C', fontWeight: 'bold' }}>
+                    Add images
+                  </Text>
+                </Button>
+              </View>
+            </CardItem>
             <CardItem>
               <Text style={{ fontSize: 25, fontWeight: 'bold' }}>
-                {this.state.data.machineType}
+                {this.state.machineType}
               </Text>
             </CardItem>
             <Item stackedLabel style={styles.formItem}>
@@ -177,7 +307,8 @@ export default class VendorMachineDetail extends React.Component {
                 keyboardType='default'
                 style={[styles.inputRegister, styles.input]}
                 editable={this.state.editable}
-                value={this.state.data.manufacturer}
+                value={this.state.manufacturer}
+                onChangeText={manufacturer => this.setState({ manufacturer })}
               />
             </Item>
             <Item stackedLabel style={styles.formItem}>
@@ -190,7 +321,8 @@ export default class VendorMachineDetail extends React.Component {
                 keyboardType='default'
                 style={[styles.inputRegister, styles.input]}
                 editable={this.state.editable}
-                value={this.state.data.model}
+                value={this.state.model}
+                onChangeText={model => this.setState({ model })}
               />
             </Item>
             <Item stackedLabel style={styles.formItem}>
@@ -203,7 +335,8 @@ export default class VendorMachineDetail extends React.Component {
                 keyboardType='number-pad'
                 style={[styles.inputRegister, styles.input]}
                 editable={this.state.editable}
-                value={this.state.data.horsePower}
+                value={this.state.horsePower}
+                onChangeText={horsePower => this.setState({ horsePower })}
               />
             </Item>
             <Item stackedLabel style={styles.formItem}>
@@ -216,7 +349,10 @@ export default class VendorMachineDetail extends React.Component {
                 keyboardType='number-pad'
                 style={[styles.inputRegister, styles.input]}
                 editable={this.state.editable}
-                value={this.state.data.yearOfManufacturing}
+                value={this.state.yearOfManufacturing}
+                onChangeText={yearOfManufacturing =>
+                  this.setState({ yearOfManufacturing })
+                }
               />
             </Item>
             <Item stackedLabel style={styles.formItem}>
@@ -232,8 +368,9 @@ export default class VendorMachineDetail extends React.Component {
                   justifyContent: 'flex-start',
                   fontSize: 18
                 }}
-                selectedValue={this.state.data.condition}
+                selectedValue={this.state.condition}
                 enabled={this.state.editable}
+                onValueChange={condition => this.setState({ condition })}
               >
                 <Picker.Item label='Used' value='Used' />
                 <Picker.Item label='Not used' value='Not used' />
@@ -249,7 +386,8 @@ export default class VendorMachineDetail extends React.Component {
                 keyboardType='default'
                 style={[styles.inputRegister, styles.input]}
                 editable={this.state.editable}
-                value={this.state.data.description}
+                value={this.state.description}
+                onChangeText={description => this.setState({ description })}
               />
             </Item>
             <Item stackedLabel style={styles.formItem}>
@@ -265,8 +403,9 @@ export default class VendorMachineDetail extends React.Component {
                   justifyContent: 'flex-start',
                   fontSize: 18
                 }}
-                selectedValue={this.state.data.pricingType}
+                selectedValue={this.state.pricingType}
                 enabled={this.state.editable}
+                onValueChange={pricingType => this.setState({ pricingType })}
               >
                 <Picker.Item label='Per Day Pricing' value='Per Day Pricing' />
                 <Picker.Item
@@ -284,8 +423,9 @@ export default class VendorMachineDetail extends React.Component {
                 autoCorrect={false}
                 keyboardType='decimal-pad'
                 style={[styles.inputRegister, styles.input]}
-                value={this.state.data.price}
+                value={this.state.price}
                 editable={this.state.editable}
+                onChangeText={price => this.setState({ price })}
               />
             </Item>
             <View
@@ -305,8 +445,9 @@ export default class VendorMachineDetail extends React.Component {
                 Security deposit
               </Text>
               <Switch
-                value={this.state.data.securityDeposit}
+                value={this.state.securityDeposit}
                 disabled={!this.state.editable}
+                onValueChange={() => this.toggleDeposit()}
               />
             </View>
             <Item stackedLabel style={styles.formItem}>
@@ -319,8 +460,23 @@ export default class VendorMachineDetail extends React.Component {
                 keyboardType='default'
                 style={[styles.inputRegister, styles.input]}
                 editable={this.state.editable}
-                value={this.state.data.policy}
+                value={this.state.policy}
+                onChangeText={policy => this.setState({ policy })}
               />
+            </Item>
+            <Item style={styles.formItem}>
+              <Button
+                transparent
+                full
+                style={{ marginTop: 5, alignSelf: 'center' }}
+                onPress={() => this.deleteMachine()}
+              >
+                <Text
+                  style={{ color: '#CE3C3E', fontWeight: 'bold', fontSize: 16 }}
+                >
+                  Delete this machine
+                </Text>
+              </Button>
             </Item>
           </Form>
         </KeyboardAwareScrollView>

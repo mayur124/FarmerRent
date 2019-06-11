@@ -59,7 +59,7 @@ const VendorAddMachine = createStackNavigator(
     MachineDetail: { screen: VendorMachineDetail }
   },
   {
-    initialRouteName: 'VendorMachines',
+    initialRouteName: 'Equipments',
     navigationOptions: {
       tabBarLabel: 'Equipments',
       tabBarIcon: ({ tintColor }) => (

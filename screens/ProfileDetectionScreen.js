@@ -1,39 +1,38 @@
 import React from 'react';
 import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
-import * as firebase from 'firebase'
+import * as firebase from 'firebase';
 
 export default class ProfileDetectionScreen extends React.Component {
   _isMounted = false;
 
-  constructor(props){
-    super(props)
-    this.state={
-      displayName: "",
-      email: "",
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      displayName: '',
+      email: ''
+    };
   }
 
   static navigationOptions = {
-    title: "Profile",
+    title: 'Profile',
     header: null
-  }
+  };
 
-  componentDidMount(){
-   
-    this._isMounted=true
+  componentDidMount() {
+    this._isMounted = true;
     firebase.auth().onAuthStateChanged(authenticate => {
-      if(authenticate){
-        if(this._isMounted){
+      if (authenticate) {
+        if (this._isMounted) {
           this.setState({
             displayName: authenticate.displayName,
-            email: authenticate.email,
-          })
+            email: authenticate.email
+          });
         }
       } else {
-        this.props.navigation.navigate("SignIn")
+        this.props.navigation.navigate('SignIn');
       }
-    })
-    
+    });
+
     //#region practice firebase query -- not working but understood querying in firebase
     // const dbRef = firebase.database().ref()
     // const {email} = this.state
@@ -66,83 +65,121 @@ export default class ProfileDetectionScreen extends React.Component {
 
     //#endregion
 
-    const dbRef = firebase.database().ref('users')
-    dbRef.once('value',snapshot=>{
-      if(snapshot){
-        //#region stackoverflow iteration of firebase snapshot
-        // snapshot.forEach(objSnapshot => {
-        //   console.log(objSnapshot); // will return entire data
-        //   objSnapshot.forEach(snapshot => {
-        //     //console.log(snapshot.val().username)
-        //     let firebaseUsername = snapshot.val().username.toLowerCase()
-        //     let stateEmail = this.state.email
-        //     if(stateEmail===firebaseUsername){
-        //       console.log(snapshot.val().userType);
-        //       if(snapshot.val().userType === 'farmer'){
-        //         console.log("inside firebase userType: farmer");
-        //         // this.props.navigation.navigate("FarmerProfile")
-        //         // return
-        //       }
-        //       else if(snapshot.val().userType === 'vendor'){
-        //         console.log("inside firebase userType: vendors");
-        //         // this.props.navigation.navigate("VendorProfile")
-        //         // return
-        //       }
-        //     }
-        //   })
-        // })
-        //#endregion
+    const dbRef = firebase.database().ref('users');
 
-        // console.log("email: ", this.state.email);
-        
-        let rootObject = snapshot.val();
-        let userTypesNode = Object.keys(rootObject);
-        // console.log(userTypesNode);
-        for(let i=0; i<userTypesNode.length; i++){
-          let userType = userTypesNode[i]
-          // console.log(userType+": "+Object.keys(rootObject[userType]));
-          let userSubData = Object.keys(rootObject[userType])
-          // console.log(userId);
-          for(let j=0; j<userSubData.length; j++){
-            let userId = userSubData[j]
-            // console.log(rootObject[userType][userId]);
-            let firebaseUsername = rootObject[userType][userId]["username"].toLowerCase()
-            let firebaseUserType = rootObject[userType][userId]["userType"]
-            // console.log(firebaseUsername);
-            let stateEmail = this.state.email
-            // console.log("stateEmail: ",stateEmail);
-            // console.log("firebaseUsername: ",firebaseUsername);
-            if(firebaseUsername === stateEmail){
-              // console.log("inside if block");
-              
-              if(firebaseUserType === 'farmer'){
-                // console.log("inside firebase userType: farmer");
-                this.props.navigation.navigate("FarmerProfile")
-                return
-              }
-              if(firebaseUserType === 'vendor'){
-                // console.log("inside firebase userType: vendor");
-                this.props.navigation.navigate("VendorProfile")
-                return
-              }
-            } 
-          }
-        }
+    let currentUser = firebase.auth().currentUser.email;
+    currentUser = currentUser.replace(new RegExp('\\.', 'g'), '_');
+
+    dbRef.once('value', snapshot => {
+      const data = snapshot.exportVal();
+      // console.log(data);
+      const dataKeys = Object.keys(data); //will hold farmers, vendors
+      // console.log(dataKeys);
+      const userEmailsArray = dataKeys.map(userType =>
+        Object.keys(data[userType])
+      );
+      // console.log(userEmailsArray);
+      const currentUserCheck = userEmailsArray.map(item =>
+        item.filter(user => user === currentUser)
+      );
+      // console.log(currentUserCheck);
+      const userEmailFromArray = currentUserCheck.filter(
+        item => item.length !== 0
+      );
+      // console.log(userEmailFromArray[0][0]);
+      const finalUser = userEmailFromArray[0][0];
+      const filteredUserData = dataKeys.map(item => data[item][finalUser]);
+      const finalUserData = filteredUserData.filter(item => item !== undefined);
+      const finalUserObject = Object.values(finalUserData[0]);
+      const userType = finalUserObject[0].userType;
+
+      if (userType === 'vendor') {
+        this.props.navigation.navigate('VendorProfile');
+        return;
+      } else {
+        this.props.navigation.navigate('FarmerProfile');
+        return;
       }
-    })
+    });
+
+    // dbRef.once('value', snapshot => {
+    //   if (snapshot) {
+    //     //#region stackoverflow iteration of firebase snapshot
+    //     // snapshot.forEach(objSnapshot => {
+    //     //   console.log(objSnapshot); // will return entire data
+    //     //   objSnapshot.forEach(snapshot => {
+    //     //     //console.log(snapshot.val().username)
+    //     //     let firebaseUsername = snapshot.val().username.toLowerCase()
+    //     //     let stateEmail = this.state.email
+    //     //     if(stateEmail===firebaseUsername){
+    //     //       console.log(snapshot.val().userType);
+    //     //       if(snapshot.val().userType === 'farmer'){
+    //     //         console.log("inside firebase userType: farmer");
+    //     //         // this.props.navigation.navigate("FarmerProfile")
+    //     //         // return
+    //     //       }
+    //     //       else if(snapshot.val().userType === 'vendor'){
+    //     //         console.log("inside firebase userType: vendors");
+    //     //         // this.props.navigation.navigate("VendorProfile")
+    //     //         // return
+    //     //       }
+    //     //     }
+    //     //   })
+    //     // })
+    //     //#endregion
+
+    //     // console.log("email: ", this.state.email);
+
+    //     let rootObject = snapshot.val();
+    //     let userTypesNode = Object.keys(rootObject);
+    //     // console.log(userTypesNode);
+    //     for (let i = 0; i < userTypesNode.length; i++) {
+    //       let userType = userTypesNode[i];
+    //       // console.log(userType+": "+Object.keys(rootObject[userType]));
+    //       let userSubData = Object.keys(rootObject[userType]);
+    //       // console.log(userId);
+    //       for (let j = 0; j < userSubData.length; j++) {
+    //         let userId = userSubData[j];
+    //         // console.log(rootObject[userType][userId]);
+    //         let firebaseUsername = rootObject[userType][userId][
+    //           'username'
+    //         ].toLowerCase();
+    //         let firebaseUserType = rootObject[userType][userId]['userType'];
+    //         // console.log(firebaseUsername);
+    //         let stateEmail = this.state.email;
+    //         // console.log("stateEmail: ",stateEmail);
+    //         // console.log("firebaseUsername: ",firebaseUsername);
+    //         if (firebaseUsername === stateEmail) {
+    //           // console.log("inside if block");
+
+    //           if (firebaseUserType === 'farmer') {
+    //             // console.log("inside firebase userType: farmer");
+    //             this.props.navigation.navigate('FarmerProfile');
+    //             return;
+    //           }
+    //           if (firebaseUserType === 'vendor') {
+    //             // console.log("inside firebase userType: vendor");
+    //             this.props.navigation.navigate('VendorProfile');
+    //             return;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // });
   }
 
-  componentWillUnmount(){
-    this._isMounted = false
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
-      return(
-        <View style={styles.container}>
-          <ActivityIndicator size="large" />
-          <Text>Just a moment</Text>
-        </View>
-      )
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size='large' />
+        <Text>Just a moment</Text>
+      </View>
+    );
   }
 }
 
@@ -151,6 +188,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 });

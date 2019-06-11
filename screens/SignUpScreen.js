@@ -47,7 +47,7 @@ export default class SignUpScreen extends React.Component {
     this.setState({ i: this.state.i + 1 });
 
     let { username, password, fname, lname, phone, userType } = this.state;
-    username = username.trim().concat('@farmerRent.com');
+    username = username.trim().concat('@farmerrent.com');
 
     console.log(`Count: ${this.state.i}`, this.validateFields());
 
@@ -58,7 +58,6 @@ export default class SignUpScreen extends React.Component {
         .then(async authenticate => {
           const dbReference = firebase.database();
           var user = {
-            username: username,
             address: this.state.address,
             city: this.state.city,
             state: this.state.state,
@@ -68,14 +67,24 @@ export default class SignUpScreen extends React.Component {
           };
           switch (userType) {
             case 'farmer':
-              await dbReference.ref('users/farmers/').push(user, error => {
-                if (error) Alert.alert(error.message, '');
-              });
+              await dbReference
+                .ref(
+                  'users/farmers/' +
+                    username.replace(new RegExp('\\.', 'g'), '_')
+                )
+                .push(user, error => {
+                  if (error) Alert.alert(error.message, '');
+                });
               break;
             case 'vendor':
-              await dbReference.ref('users/vendors/').push(user, error => {
-                if (error) Alert.alert(error.message, '');
-              });
+              await dbReference
+                .ref(
+                  'users/vendors/' +
+                    username.replace(new RegExp('\\.', 'g'), '_')
+                )
+                .push(user, error => {
+                  if (error) Alert.alert(error.message, '');
+                });
               break;
           }
           return authenticate.user

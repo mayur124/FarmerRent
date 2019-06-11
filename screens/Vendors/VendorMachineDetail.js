@@ -22,6 +22,7 @@ import { styles, vendorStyles } from '../../components/Styles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ImagePicker, Permissions } from 'expo';
 import * as firebase from 'firebase';
+import uuid from 'uuid';
 
 export default class VendorMachineDetail extends React.Component {
   constructor(props) {
@@ -33,7 +34,8 @@ export default class VendorMachineDetail extends React.Component {
       editComponentStyle: 'none',
       editBtnStyle: 'flex',
       doneBtnStyle: 'none',
-      editable: false
+      editable: false,
+      uploadingFlag: false
     };
   }
 
@@ -100,6 +102,7 @@ export default class VendorMachineDetail extends React.Component {
               justifyContent: 'center',
               display: this.state.editComponentStyle
             }}
+            onPress={() => this.removeImage(index)}
           >
             <Text
               key={Math.random() * Math.random()}
@@ -181,27 +184,98 @@ export default class VendorMachineDetail extends React.Component {
       editable: this.state.editable === false ? true : false
     });
     if (this.state.editDoneText === 'Done') {
-      // let username = firebase
-      //   .auth()
-      //   .currentUser.email.replace(new RegExp('\\.', 'g'), '_');
-      // const dbRef = firebase
-      //   .database()
-      //   .ref('vendorAds/' + username + '/' + this.state.key);
-      // let { key, ...uData } = this.state;
-      // // console.log('key\n',key);
-      // // console.log('uData\n',uData);
+      this.setState({ uploadingFlag: true });
+      let user = firebase.auth().currentUser.email;
+      let username = firebase
+        .auth()
+        .currentUser.email.replace(new RegExp('\\.', 'g'), '_');
 
-      // dbRef.set(uData, error => {
-      //   if (!error) this.props.navigation.replace('VendorMachines');
-      // });
+      const dbRef = firebase
+        .database()
+        .ref('vendorAds/' + username + '/' + this.state.key);
+
+      const storageRef = firebase.storage().ref();
+
+      let {
+        key,
+        isLoading,
+        editDoneText,
+        editComponentStyle,
+        editBtnStyle,
+        doneBtnStyle,
+        editable,
+        hasCameraPermission,
+        hasGalleryPermission,
+        ...uData
+      } = this.state;
+      // console.log('key\n',key);
+      // console.log('uData\n',uData);
       const httpImages = this.state.imagePaths.filter(image =>
         image.includes('https://')
       );
       const newImages = this.state.imagePaths.filter(image =>
         image.includes('file')
       );
+      const imagePromise = newImages.map(image => {
+        return new Promise((resolve, reject) => {
+          this.uploadImageAsync(image, storageRef, user)
+            .then(async url => {
+              if (url) {
+                await console.log(url);
+                await httpImages.push(url);
+                await console.log('1) httpImages\n', httpImages);
+                return resolve('Done');
+              } else {
+                return reject('Not done');
+              }
+            })
+            .catch(error => console.log(error));
+        });
+      });
+
+      Promise.all(imagePromise).then(async output => {
+        uData.imagePaths = httpImages.slice(0);
+        // console.log('uData imagePaths\n', uData.imagePaths);
+        await dbRef.set(uData, async error => {
+          if (!error) {
+            this.setState({ uploadingFlag: false });
+            this.props.navigation.replace('VendorMachines');
+          }
+        });
+      });
+
       // console.log('httpImages\n', httpImages, 'newImages\n', newImages);
     }
+  };
+
+  uploadImageAsync = async (image, storageRef, user) => {
+    const parts = image.split('.');
+    const fileExtension = parts[parts.length - 1];
+
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function(err) {
+        console.log(err);
+        reject(new TypeError('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', image, true);
+      xhr.send(null);
+    });
+
+    const ref = storageRef
+      .child('VendorMachines')
+      .child('' + user)
+      .child(uuid.v4() + '.' + fileExtension);
+
+    const snapshot = await ref.put(blob);
+
+    blob.close();
+
+    return await snapshot.ref.getDownloadURL();
   };
 
   deleteMachine = () => {
@@ -243,6 +317,14 @@ export default class VendorMachineDetail extends React.Component {
         <View style={styles.container}>
           <ActivityIndicator size='large' />
           <Text>Loading</Text>
+        </View>
+      );
+
+    if (this.state.uploadingFlag)
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size='large' />
+          <Text>Uploading</Text>
         </View>
       );
 

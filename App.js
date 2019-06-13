@@ -69,6 +69,20 @@ const VendorAddMachine = createStackNavigator(
   }
 );
 
+const profileNavigator = createStackNavigator(
+  {
+    ProfileScreen: { screen: VendorProfileScreen }
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'Profile',
+      tabBarIcon: ({ tintColor }) => (
+        <FontAwesome name='user-circle' color={tintColor} size={24} />
+      )
+    }
+  }
+);
+
 const VendorNavigator = createMaterialBottomTabNavigator(
   {
     VendorAddMachine,
@@ -90,15 +104,7 @@ const VendorNavigator = createMaterialBottomTabNavigator(
         )
       }
     },
-    Profile: {
-      screen: VendorProfileScreen,
-      navigationOptions: {
-        tabBarLabel: 'Profile',
-        tabBarIcon: ({ tintColor }) => (
-          <FontAwesome name='user-circle' color={tintColor} size={24} />
-        )
-      }
-    }
+    profileNavigator
   },
   {
     // initialRouteName: 'Equipments',

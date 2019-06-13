@@ -73,13 +73,22 @@ export default class VendorEquipmentScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={vendorStyles.container}>
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text
+            style={{
+              fontSize: 25,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              marginTop: Dimensions.get('screen').height / 2 - 200,
+              flexWrap: 'wrap'
+            }}
+          >
+            Welcome, {`${firebase.auth().currentUser.displayName}`}
+          </Text>
           <Button
             style={[
               vendorStyles.button,
-              { width: Dimensions.get('screen').width / 2 }
+              { width: Dimensions.get('screen').width / 2, marginTop: 60 }
             ]}
             onPress={() => this.addMachine()}
           >

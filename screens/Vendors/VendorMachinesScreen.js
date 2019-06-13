@@ -20,6 +20,7 @@ export default class VendorMachineScreen extends React.Component {
     this.state = {
       hasPostedAnyAd: null,
       adsArray: [],
+      inMemoryAdsArray: [],
       initialImage: '',
       visible: false
     };
@@ -51,7 +52,8 @@ export default class VendorMachineScreen extends React.Component {
           });
           await this.setState({
             hasPostedAnyAd: true,
-            adsArray: adValues
+            adsArray: adValues,
+            inMemoryAdsArray: adValues
           });
 
           // console.log(this.state.adsArray);
@@ -84,6 +86,16 @@ export default class VendorMachineScreen extends React.Component {
     this.setState({ visible: this.state.visible === false ? true : false });
   };
 
+  searchMachine = machineType => {
+    const filteredMachine = this.state.inMemoryAdsArray.filter(machine => {
+      let machineLowerCase = machine.machineType.toLowerCase();
+      let searchLowerCase = machineType.toLowerCase();
+      return machineLowerCase.indexOf(searchLowerCase) > -1;
+    });
+
+    this.setState({ adsArray: filteredMachine });
+  };
+
   render() {
     if (this.state.hasPostedAnyAd === null) {
       return (
@@ -108,22 +120,16 @@ export default class VendorMachineScreen extends React.Component {
 
     return (
       <View style={vendorStyles.container}>
-        <Item
-          style={[
-            styles.formItem,
-            {
-              flexDirection: 'row',
-              width: Dimensions.get('screen').width - 20,
-              marginTop: 10
-            }
-          ]}
-        >
-          <Input
-            autoCapitalize='none'
-            style={[styles.input, { alignContent: 'center' }]}
-            placeholder='Search - E.g. Tractor'
-          />
-        </Item>
+        <CardItem header bordered>
+          <Item style={styles.formItem}>
+            <Input
+              autoCapitalize='none'
+              style={[styles.input, { alignContent: 'center' }]}
+              placeholder='Search - E.g. Tractor'
+              onChangeText={machineType => this.searchMachine(machineType)}
+            />
+          </Item>
+        </CardItem>
         <FlatList
           contentContainerStyle={{
             justifyContent: 'center',

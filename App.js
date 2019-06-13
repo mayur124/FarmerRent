@@ -83,31 +83,42 @@ const profileNavigator = createStackNavigator(
   }
 );
 
+const BookingNavigator = createStackNavigator(
+  {
+    BookingScreen: { screen: VendorBookingsScreen }
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'Bookings',
+      tabBarIcon: ({ tintColor }) => (
+        <FontAwesome name='calendar' color={tintColor} size={24} />
+      )
+    }
+  }
+);
+
+const EarningNavigator = createStackNavigator(
+  {
+    EarningScreen: { screen: VendorEarningScreen }
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'Earnings',
+      tabBarIcon: ({ tintColor }) => (
+        <FontAwesome name='line-chart' color={tintColor} size={24} />
+      )
+    }
+  }
+);
+
 const VendorNavigator = createMaterialBottomTabNavigator(
   {
     VendorAddMachine,
-    Bookings: {
-      screen: VendorBookingsScreen,
-      navigationOptions: {
-        tabBarLabel: 'Bookings',
-        tabBarIcon: ({ tintColor }) => (
-          <FontAwesome name='calendar' color={tintColor} size={24} />
-        )
-      }
-    },
-    Earnings: {
-      screen: VendorEarningScreen,
-      navigationOptions: {
-        tabBarLabel: 'Earnings',
-        tabBarIcon: ({ tintColor }) => (
-          <FontAwesome name='line-chart' color={tintColor} size={24} />
-        )
-      }
-    },
+    BookingNavigator,
+    EarningNavigator,
     profileNavigator
   },
   {
-    // initialRouteName: 'Equipments',
     activeTintColor: '#D9AE3C',
     shifting: false,
     barStyle: { backgroundColor: '#453421' }

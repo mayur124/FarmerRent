@@ -63,7 +63,9 @@ export default class SignUpScreen extends React.Component {
             state: this.state.state,
             pinCode: this.state.pinCode,
             userType: this.state.userType,
-            phone: this.state.phone
+            phone: this.state.phone,
+            fname: this.state.fname,
+            lname: this.state.lname
           };
           switch (userType) {
             case 'farmer':

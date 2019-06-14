@@ -14,7 +14,6 @@ import SignUpScreen from './screens/SignUpScreen';
 import ProfileDetectionScreen from './screens/ProfileDetectionScreen';
 
 import FarmerHomeScreen from './screens/Farmers/FarmerHomeScreen';
-
 import FarmerProfileScreen from './screens/Farmers/FarmerProfileScreen';
 import FarmerTransactionHistoryScreen from './screens/Farmers/FarmerTransactionHistoryScreen';
 
@@ -43,11 +42,32 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-const FarmerNavigator = createMaterialBottomTabNavigator({
-  Home: { screen: FarmerHomeScreen },
-  History: { screen: FarmerTransactionHistoryScreen },
-  Profile: { screen: FarmerProfileScreen }
-});
+const FarmerHomeNavigator = createStackNavigator(
+  {
+    Home: { screen: FarmerHomeScreen }
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'Home',
+      tabBarIcon: ({ tintColor }) => (
+        <FontAwesome name='home' color={tintColor} size={24} />
+      )
+    }
+  }
+);
+
+const FarmerNavigator = createMaterialBottomTabNavigator(
+  {
+    FarmerHomeNavigator,
+    History: { screen: FarmerTransactionHistoryScreen },
+    Profile: { screen: FarmerProfileScreen }
+  },
+  {
+    activeTintColor: '#F6F2EE',
+    shifting: false,
+    barStyle: { backgroundColor: '#A18F78' }
+  }
+);
 
 const VendorAddMachine = createStackNavigator(
   {

@@ -15,6 +15,10 @@ import ProfileDetectionScreen from './screens/ProfileDetectionScreen';
 
 import FarmerHomeScreen from './screens/Farmers/FarmerHomeScreen';
 import FarmerProfileScreen from './screens/Farmers/FarmerProfileScreen';
+import FarmerMachineDetail from './screens/Farmers/FarmerMachineDetail';
+import FarmerAllMachines from './screens/Farmers/FarmerAllMachines';
+import FarmerSearchMachines_StCtyPn from './screens/Farmers/FarmerSearchMachines_StCtyPn';
+import FarmerSearchMachines_McTyp from './screens/Farmers/FarmerSearchMachines_McTyp';
 import FarmerTransactionHistoryScreen from './screens/Farmers/FarmerTransactionHistoryScreen';
 
 import VendorEquipmentScreen from './screens/Vendors/VendorEquipmentScreen';
@@ -44,7 +48,11 @@ firebase.initializeApp(firebaseConfig);
 
 const FarmerHomeNavigator = createStackNavigator(
   {
-    Home: { screen: FarmerHomeScreen }
+    Home: { screen: FarmerHomeScreen },
+    SearchStCtyPn: { screen: FarmerSearchMachines_StCtyPn },
+    SearchMchn: { screen: FarmerSearchMachines_McTyp },
+    FarmerMachineDetail: { screen: FarmerMachineDetail },
+    FarmerAllMachines: { screen: FarmerAllMachines }
   },
   {
     navigationOptions: {

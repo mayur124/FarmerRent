@@ -5,10 +5,10 @@ import {
   ScrollView,
   Image,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList
 } from 'react-native';
 import { Card, CardItem, Button } from 'native-base';
-import { styles, vendorStyles } from '../../components/Styles';
 import * as firebase from 'firebase';
 
 export default class FarmerHomeScreen extends React.Component {
@@ -20,7 +20,10 @@ export default class FarmerHomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    let dbRef = firebase.database().ref('vendorAds');
+    let dbRef = firebase
+      .database()
+      .ref('vendorAds')
+      .limitToFirst(10);
     dbRef.once('value', async snapshot => {
       let vendorsKeys = Object.keys(snapshot.val());
       // console.log(vendorsKeys);
@@ -61,8 +64,8 @@ export default class FarmerHomeScreen extends React.Component {
 
   render() {
     return (
-      <ScrollView contentContainerStyle={vendorStyles.container}>
-        <Card style={{ width: Dimensions.get('screen').width - 20 }}>
+      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+        <Card style={{ width: Dimensions.get('screen').width - 10 }}>
           <CardItem>
             <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
               Search machine by:
@@ -82,6 +85,11 @@ export default class FarmerHomeScreen extends React.Component {
                 borderRadius: 10,
                 backgroundColor: '#BFBFBF'
               }}
+              onPress={() =>
+                this.props.navigation.navigate('SearchStCtyPn', {
+                  searchType: 'state'
+                })
+              }
             >
               <Text style={{ fontWeight: '500' }}>State</Text>
             </Button>
@@ -92,6 +100,11 @@ export default class FarmerHomeScreen extends React.Component {
                 borderRadius: 10,
                 backgroundColor: '#BFBFBF'
               }}
+              onPress={() =>
+                this.props.navigation.navigate('SearchStCtyPn', {
+                  searchType: 'city'
+                })
+              }
             >
               <Text style={{ fontWeight: '500' }}>City / Village</Text>
             </Button>
@@ -102,12 +115,17 @@ export default class FarmerHomeScreen extends React.Component {
                 borderRadius: 10,
                 backgroundColor: '#BFBFBF'
               }}
+              onPress={() =>
+                this.props.navigation.navigate('SearchStCtyPn', {
+                  searchType: 'pincode'
+                })
+              }
             >
               <Text style={{ fontWeight: '500' }}>Pincode</Text>
             </Button>
           </CardItem>
         </Card>
-        <Card style={{ width: Dimensions.get('screen').width - 20 }}>
+        <Card style={{ width: Dimensions.get('screen').width - 10 }}>
           <CardItem>
             <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
               Machine types:
@@ -115,7 +133,13 @@ export default class FarmerHomeScreen extends React.Component {
           </CardItem>
           <CardItem>
             <ScrollView horizontal={true} style={{ marginTop: -10 }}>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Tractor'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -126,7 +150,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Tractor
@@ -135,7 +160,13 @@ export default class FarmerHomeScreen extends React.Component {
                 </Card>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Tillage Equipment'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -146,7 +177,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Tillage Equipment
@@ -155,7 +187,13 @@ export default class FarmerHomeScreen extends React.Component {
                 </Card>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Seeding Equipment'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -166,7 +204,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Seeding Equipment
@@ -175,7 +214,13 @@ export default class FarmerHomeScreen extends React.Component {
                 </Card>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Landscaping Equipment'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -186,7 +231,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Landscaping Equipment
@@ -195,7 +241,13 @@ export default class FarmerHomeScreen extends React.Component {
                 </Card>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Crop Protection'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -206,7 +258,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Crop Protection
@@ -215,7 +268,13 @@ export default class FarmerHomeScreen extends React.Component {
                 </Card>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Harvest Equipment'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -226,7 +285,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Harvest Equipment
@@ -235,7 +295,13 @@ export default class FarmerHomeScreen extends React.Component {
                 </Card>
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  this.props.navigation.navigate('SearchMchn', {
+                    machineType: 'Post Harvest'
+                  })
+                }
+              >
                 <Card>
                   <CardItem style={{ flexDirection: 'column' }}>
                     <Image
@@ -246,7 +312,8 @@ export default class FarmerHomeScreen extends React.Component {
                       style={{
                         alignSelf: 'center',
                         textAlign: 'center',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        marginTop: 5
                       }}
                     >
                       Post Harvest
@@ -256,6 +323,80 @@ export default class FarmerHomeScreen extends React.Component {
               </TouchableOpacity>
             </ScrollView>
           </CardItem>
+        </Card>
+        <Card style={{ width: Dimensions.get('screen').width - 10 }}>
+          <CardItem>
+            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+              Equipments from vendors:
+            </Text>
+          </CardItem>
+          <FlatList
+            scrollsToTop={true}
+            contentContainerStyle={{
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+            data={this.state.ads}
+            ListFooterComponent={
+              <Button
+                onPress={() =>
+                  this.props.navigation.navigate('FarmerAllMachines')
+                }
+                style={{
+                  paddingHorizontal: 10,
+                  borderRadius: 10,
+                  backgroundColor: '#BFBFBF',
+                  margin: 5,
+                  width: '100%'
+                }}
+              >
+                <Text style={{ fontWeight: 'bold' }}>View all machines</Text>
+              </Button>
+            }
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity
+                  onPress={() =>
+                    this.props.navigation.navigate('FarmerMachineDetail', {
+                      item: item
+                    })
+                  }
+                >
+                  <Card style={{ width: Dimensions.get('screen').width - 10 }}>
+                    <CardItem>
+                      <Image
+                        style={{
+                          borderRadius: 2,
+                          borderColor: '#EAF0F1',
+                          backgroundColor: '#f4f4f4',
+                          height: 100,
+                          width: 100
+                        }}
+                        source={{ uri: item.imagePaths[0] }}
+                      />
+                      <View style={{ flexDirection: 'column', marginLeft: 10 }}>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 'bold',
+                            flexWrap: 'wrap'
+                          }}
+                        >
+                          {item.machineType}
+                        </Text>
+                        <Text style={{ fontWeight: 'bold', marginTop: 10 }}>
+                          Pricing type:
+                        </Text>
+                        <Text>{item.pricingType}</Text>
+                        <Text style={{ fontWeight: 'bold' }}>Price:</Text>
+                        <Text>&#8377;{item.price}</Text>
+                      </View>
+                    </CardItem>
+                  </Card>
+                </TouchableOpacity>
+              );
+            }}
+          />
         </Card>
       </ScrollView>
     );

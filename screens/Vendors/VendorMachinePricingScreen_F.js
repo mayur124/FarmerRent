@@ -61,13 +61,9 @@ export default class VendorMachinePricingScreen extends React.Component {
     // let email = firebase.auth().currentUser.email;
 
     const storageRef = firebase.storage().ref();
-    const vEmail = firebase.auth().currentUser.email;
-    const emailRegex = '\\.';
-    const dbRef = firebase
-      .database()
-      .ref(
-        'vendorAds/' + vEmail.replace(new RegExp(emailRegex, 'g'), '_') + '/'
-      );
+    let vEmail = firebase.auth().currentUser.email;
+    let vEmailForFirebase = vEmail.replace(new RegExp('\\.', 'g'), '_');
+    const dbRef = firebase.database().ref('vendorAds/' + vEmailForFirebase);
 
     let { tags } = tempData;
     let tagArray = tags.split(' ').filter(item => item !== '');
@@ -83,7 +79,8 @@ export default class VendorMachinePricingScreen extends React.Component {
       price: tempData.price,
       pricingType: tempData.pricingType,
       securityDeposit: tempData.securityDeposit,
-      yearOfManufacturing: tempData.yearOfManufacturing
+      yearOfManufacturing: tempData.yearOfManufacturing,
+      vendorEmail: vEmailForFirebase
     };
 
     Object.assign(finalData, tagObject);

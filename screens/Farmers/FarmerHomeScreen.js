@@ -6,50 +6,64 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  ActivityIndicator
 } from 'react-native';
 import { Card, CardItem, Button } from 'native-base';
 import * as firebase from 'firebase';
+import { styles } from '../../components/Styles';
 
 export default class FarmerHomeScreen extends React.Component {
+  _check = false;
+
   constructor(props) {
     super(props);
     this.state = {
-      ads: {}
+      ads: {},
+      isLoading: false
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    await this.setState({ isLoading: true });
+    this._check = true;
     let dbRef = firebase
       .database()
       .ref('vendorAds')
       .limitToFirst(10);
-    dbRef.once('value', async snapshot => {
-      let vendorsKeys = Object.keys(snapshot.val());
-      // console.log(vendorsKeys);
+    if (this._check) {
+      await dbRef.once('value', async snapshot => {
+        let vendorsKeys = Object.keys(snapshot.val());
+        // console.log(vendorsKeys);
 
-      let adKeys = [];
-      vendorsKeys.map(item => adKeys.push(Object.keys(snapshot.val()[item])));
-      let adValues = [];
-      vendorsKeys.map(item =>
-        adValues.push(Object.values(snapshot.val()[item]))
-      );
-      // console.log(adValues);
+        let adKeys = [];
+        vendorsKeys.map(item => adKeys.push(Object.keys(snapshot.val()[item])));
+        let adValues = [];
+        vendorsKeys.map(item =>
+          adValues.push(Object.values(snapshot.val()[item]))
+        );
+        // console.log(adValues);
 
-      let joinedAdKeys = [];
-      adKeys.map(item => item.map(key => joinedAdKeys.push(key.toString())));
-      // console.log(joinedAdKeys);
+        let joinedAdKeys = [];
+        adKeys.map(item => item.map(key => joinedAdKeys.push(key.toString())));
+        // console.log(joinedAdKeys);
 
-      let joinedAdValues = [];
-      adValues.map(item => item.map(val => joinedAdValues.push(val)));
+        let joinedAdValues = [];
+        adValues.map(item => item.map(val => joinedAdValues.push(val)));
 
-      joinedAdValues.map((item, index) => {
-        item['key'] = joinedAdKeys[index];
+        joinedAdValues.map((item, index) => {
+          item['key'] = joinedAdKeys[index];
+        });
+        // console.log(joinedAdValues);
+
+        await this.setState({ ads: joinedAdValues });
       });
-      // console.log(joinedAdValues);
+    }
+    await this.setState({ isLoading: false });
+  }
 
-      await this.setState({ ads: joinedAdValues });
-    });
+  componentWillUnmount() {
+    this._check = false;
   }
 
   static navigationOptions = {
@@ -63,6 +77,13 @@ export default class FarmerHomeScreen extends React.Component {
   };
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size='large' />
+        </View>
+      );
+    }
     return (
       <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
         <Card style={{ width: Dimensions.get('screen').width - 10 }}>

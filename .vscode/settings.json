@@ -12,6 +12,11 @@
         "tc",
         "umrv",
         "vd",
-        "w"
+        "w",
+        "whatsapp"
+    ],
+    "cSpell.ignoreWords": [
+        "teleprompt",
+        "telprompt"
     ]
 }

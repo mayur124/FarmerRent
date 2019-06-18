@@ -24,7 +24,10 @@ export default class VendorMachinePricingScreen extends React.Component {
       policy: '',
       securityDeposit: false,
       isUploading: false,
-      i: 0
+      i: 0,
+      state: '',
+      city: '',
+      pinCode: ''
     };
     this.secondScreenData = {};
     this.firstScreenData = {};
@@ -64,7 +67,14 @@ export default class VendorMachinePricingScreen extends React.Component {
     let vEmail = firebase.auth().currentUser.email;
     let vEmailForFirebase = vEmail.replace(new RegExp('\\.', 'g'), '_');
     const dbRef = firebase.database().ref('vendorAds/' + vEmailForFirebase);
-
+    var snapshotObj;
+    const dbRef2 = firebase
+      .database()
+      .ref('users/vendors/' + vEmailForFirebase);
+    await dbRef2.once('value', async snapshot => {
+      snapshotObj = await Object.values(snapshot.val());
+      // console.log('Inside ', snapshotObj[0].state);
+    });
     let { tags } = tempData;
     let tagArray = tags.split(' ').filter(item => item !== '');
     let tagObject = { tags: tagArray };
@@ -80,7 +90,10 @@ export default class VendorMachinePricingScreen extends React.Component {
       pricingType: tempData.pricingType,
       securityDeposit: tempData.securityDeposit,
       yearOfManufacturing: tempData.yearOfManufacturing,
-      vendorEmail: vEmailForFirebase
+      vendorEmail: vEmailForFirebase,
+      state: snapshotObj[0].state,
+      city: snapshotObj[0].city,
+      pinCode: snapshotObj[0].pinCode
     };
 
     Object.assign(finalData, tagObject);
@@ -96,10 +109,10 @@ export default class VendorMachinePricingScreen extends React.Component {
         this.uploadImageAsync(image, storageRef, vEmail)
           .then(async url => {
             if (url) {
-              await console.log('url in abc: ', url);
+              // await console.log('url in abc: ', url);
               await imagePathArray.push(url);
               tempImageObject = { imagePaths: imagePathArray };
-              console.log('tempImageObject: \n', tempImageObject);
+              // console.log('tempImageObject: \n', tempImageObject);
               return resolve('Done');
             } else {
               return reject('Not done');

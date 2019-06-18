@@ -53,6 +53,21 @@ export default class VendorEquipmentScreen extends React.Component {
         this.props.navigation.navigate('SignIn');
       }
     });
+
+    // let vEmail = firebase.auth().currentUser.email;
+    // let vEmailForFirebase = vEmail.replace(new RegExp('\\.', 'g'), '_');
+    // let snapshotObj;
+    // const dbRef2 = firebase
+    //   .database()
+    //   .ref('users/vendors/' + vEmailForFirebase);
+    // dbRef2.once('value', snapshot => {
+    //   snapshotObj = Object.values(snapshot.val());
+    //   console.log(
+    //     snapshotObj[0].city,
+    //     snapshotObj[0].state,
+    //     snapshotObj[0].pinCode
+    //   );
+    // });
   }
 
   componentWillUnmount() {

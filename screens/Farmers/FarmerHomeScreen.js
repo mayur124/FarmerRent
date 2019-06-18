@@ -104,7 +104,9 @@ export default class FarmerHomeScreen extends React.Component {
               style={{
                 paddingHorizontal: 10,
                 borderRadius: 10,
-                backgroundColor: '#BFBFBF'
+                backgroundColor: '#BFBFBF',
+                width: '40%',
+                justifyContent: 'center'
               }}
               onPress={() =>
                 this.props.navigation.navigate('SearchStCtyPn', {
@@ -119,7 +121,9 @@ export default class FarmerHomeScreen extends React.Component {
               style={{
                 paddingHorizontal: 10,
                 borderRadius: 10,
-                backgroundColor: '#BFBFBF'
+                backgroundColor: '#BFBFBF',
+                width: '40%',
+                justifyContent: 'center'
               }}
               onPress={() =>
                 this.props.navigation.navigate('SearchStCtyPn', {
@@ -128,21 +132,6 @@ export default class FarmerHomeScreen extends React.Component {
               }
             >
               <Text style={{ fontWeight: '500' }}>City / Village</Text>
-            </Button>
-            <Button
-              transparent
-              style={{
-                paddingHorizontal: 10,
-                borderRadius: 10,
-                backgroundColor: '#BFBFBF'
-              }}
-              onPress={() =>
-                this.props.navigation.navigate('SearchStCtyPn', {
-                  searchType: 'pincode'
-                })
-              }
-            >
-              <Text style={{ fontWeight: '500' }}>Pincode</Text>
             </Button>
           </CardItem>
         </Card>

@@ -15,7 +15,7 @@ import {
 import { Button, Card, CardItem } from 'native-base';
 import * as firebase from 'firebase';
 import { vendorStyles, styles } from '../../components/Styles';
-export default class FarmerMachineDetail extends React.Component {
+export default class F_VendorMachineDetail extends React.Component {
   _isMounted = false;
 
   constructor(props) {
@@ -257,7 +257,6 @@ export default class FarmerMachineDetail extends React.Component {
             >
               {this.state.adObject.machineType}
             </Text>
-
             <ScrollView
               horizontal={true}
               style={{ flex: 1, flexDirection: 'row' }}
@@ -313,24 +312,6 @@ export default class FarmerMachineDetail extends React.Component {
                   <Text>{this.state.vendorProfile[0].pinCode}</Text>
                 </View>
               </CardItem>
-              <TouchableOpacity
-                style={{ paddingBottom: 10 }}
-                onPress={() =>
-                  this.props.navigation.navigate('F_VendorAllMachines', {
-                    vendor: this.state.adObject.vendorEmail
-                  })
-                }
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: '#2475B0',
-                    textAlign: 'center'
-                  }}
-                >
-                  See all machines from this vendor &#x2192;
-                </Text>
-              </TouchableOpacity>
             </Card>
 
             <Card style={{ width: Dimensions.get('screen').width - 20 }}>

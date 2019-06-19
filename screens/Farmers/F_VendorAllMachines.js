@@ -4,6 +4,7 @@ import {
   Text,
   ActivityIndicator,
   Dimensions,
+  ScrollView,
   Image,
   TouchableOpacity,
   FlatList
@@ -12,31 +13,40 @@ import { Card, Button, Input, Item, CardItem, Icon } from 'native-base';
 import { styles, vendorStyles } from '../../components/Styles';
 import * as firebase from 'firebase';
 
-export default class VendorMachineScreen extends React.Component {
+export default class F_VendorAllMachines extends React.Component {
   _isMounted = false;
 
   constructor(props) {
     super(props);
     this.state = {
-      hasPostedAnyAd: null,
       adsArray: [],
       inMemoryAdsArray: [],
       initialImage: '',
-      visible: false
+      loading: false,
+      vendorName: ''
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    await this.setState({ loading: true });
     this._isMounted = true;
-    let currentFirebaseVendor = firebase
-      .auth()
-      .currentUser.email.replace(new RegExp('\\.', 'g'), '_');
-    // console.log(currentFirebaseVendor);
+    let currentFirebaseVendor = await this.props.navigation.getParam('vendor');
 
     if ((this._isMounted = true)) {
-      let dbReference = firebase
+      let dbReference = await firebase
         .database()
         .ref('vendorAds/' + currentFirebaseVendor);
+
+      let userDbRef = await firebase
+        .database()
+        .ref('users/vendors/' + currentFirebaseVendor);
+      userDbRef.once('value', async snapshot => {
+        let adValues = await Object.values(snapshot.val());
+        await this.setState({
+          vendorName: adValues[0].fname + ' ' + adValues[0].lname
+        });
+      });
+
       dbReference.once('value', async snapshot => {
         if (snapshot.val()) {
           let adKeys = await Object.keys(snapshot.val());
@@ -50,17 +60,12 @@ export default class VendorMachineScreen extends React.Component {
             // console.log('------------------------------------------');
           });
           await this.setState({
-            hasPostedAnyAd: true,
             adsArray: adValues,
-            inMemoryAdsArray: adValues
+            inMemoryAdsArray: adValues,
+            loading: false
           });
 
           // console.log(this.state.adsArray);
-        } else {
-          await this.setState({
-            hasPostedAnyAd: false
-          });
-          console.log('No ads present');
         }
       });
     }
@@ -70,20 +75,6 @@ export default class VendorMachineScreen extends React.Component {
   componentWillUnmount() {
     this._isMounted = false;
   }
-
-  static navigationOptions = {
-    title: 'Your Machines',
-    headerTitleStyle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: '#D9AE3C',
-      textAlign: 'center'
-    }
-  };
-
-  toggleSearch = () => {
-    this.setState({ visible: this.state.visible === false ? true : false });
-  };
 
   searchMachine = machineType => {
     const filteredMachine = this.state.inMemoryAdsArray.filter(machine => {
@@ -96,40 +87,31 @@ export default class VendorMachineScreen extends React.Component {
   };
 
   render() {
-    if (this.state.hasPostedAnyAd === null) {
+    if (this.state.loading) {
       return (
         <View style={styles.container}>
           <ActivityIndicator size='large' />
-          <Text>Loading</Text>
         </View>
       );
     }
-
-    if (this.state.hasPostedAnyAd === false) {
-      return (
-        <View style={styles.container}>
-          <Text
-            style={{ fontWeight: 'bold', fontSize: 20, textAlign: 'center' }}
-          >
-            You have not posted any machines
-          </Text>
-        </View>
-      );
-    }
-
     return (
-      <View style={vendorStyles.container}>
-        <CardItem header bordered>
-          <Item style={styles.formItem}>
-            <Input
-              autoCapitalize='none'
-              style={[styles.input, { alignContent: 'center' }]}
-              placeholder='Search - E.g. Tractor'
-              onChangeText={machineType => this.searchMachine(machineType)}
-            />
-          </Item>
-        </CardItem>
+      <ScrollView contentContainerStyle={vendorStyles.container}>
+        <Item style={styles.formItem}>
+          <Input
+            autoCapitalize='none'
+            style={[styles.input, { alignContent: 'center' }]}
+            placeholder='Search - E.g. Tractor'
+            onChangeText={machineType => this.searchMachine(machineType)}
+          />
+        </Item>
+        <Text style={{ fontWeight: 'bold', fontSize: 25 }}>
+          {this.state.vendorName}
+        </Text>
+        <Text style={{ fontWeight: 'bold', fontSize: 20 }}>
+          {this.state.adsArray.length} Equipments
+        </Text>
         <FlatList
+          horizontal={true}
           contentContainerStyle={{
             justifyContent: 'center',
             alignItems: 'center'
@@ -138,41 +120,48 @@ export default class VendorMachineScreen extends React.Component {
           renderItem={({ item }) => {
             return (
               <TouchableOpacity
-                onPress={() => {
-                  this.props.navigation.navigate('MachineDetail', {
+                onPress={() =>
+                  this.props.navigation.navigate('F_VendorMachineDetail', {
                     item: item
-                  });
-                }}
+                  })
+                }
               >
-                <Card style={{ width: Dimensions.get('screen').width - 20 }}>
-                  <CardItem>
+                <Card style={{ marginHorizontal: 5 }}>
+                  <CardItem style={{ flexDirection: 'column' }}>
                     <Image
                       style={{
                         borderRadius: 2,
                         borderColor: '#EAF0F1',
                         backgroundColor: '#f4f4f4',
-                        height: 100,
-                        width: 100
+                        height: 150,
+                        width: 150
                       }}
                       source={{ uri: item.imagePaths[0] }}
                     />
-                    <View style={{ flexDirection: 'column', marginLeft: 10 }}>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          fontWeight: 'bold',
-                          flexWrap: 'wrap'
-                        }}
-                      >
-                        {item.machineType}
-                      </Text>
-                      <Text style={{ fontWeight: 'bold', marginTop: 10 }}>
-                        Pricing type:
-                      </Text>
-                      <Text>{item.pricingType}</Text>
-                      <Text style={{ fontWeight: 'bold' }}>Price:</Text>
-                      <Text>&#8377;{item.price}</Text>
-                    </View>
+
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                        flexWrap: 'wrap',
+                        marginTop: 5
+                      }}
+                    >
+                      {item.machineType}
+                    </Text>
+                    <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
+                      Price:
+                    </Text>
+                    <Text>
+                      &#8377;{item.price}
+                      {item.pricingType === 'Per Day Pricing'
+                        ? '/day'
+                        : '/hour'}
+                    </Text>
+                    <Text style={{ fontWeight: 'bold' }}>State:</Text>
+                    <Text>{item.state}</Text>
+                    <Text style={{ fontWeight: 'bold' }}>City/Village:</Text>
+                    <Text>{item.city}</Text>
                   </CardItem>
                 </Card>
               </TouchableOpacity>
@@ -180,7 +169,7 @@ export default class VendorMachineScreen extends React.Component {
           }}
           keyExtractor={item => item.key.toString()}
         />
-      </View>
+      </ScrollView>
     );
   }
 }

@@ -167,6 +167,12 @@ export default class FarmerSearchMachines_StCtyPn extends React.Component {
                       <Text>{item.pricingType}</Text>
                       <Text style={{ fontWeight: 'bold' }}>Price:</Text>
                       <Text>&#8377;{item.price}</Text>
+                      <Text style={{ fontWeight: 'bold' }}>
+                        {this.state.searchType === 'state'
+                          ? 'State:'
+                          : 'City/Village:'}
+                      </Text>
+                      <Text>{item[this.state.searchType]}</Text>
                     </View>
                   </CardItem>
                 </Card>

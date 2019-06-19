@@ -17,6 +17,8 @@ import FarmerHomeScreen from './screens/Farmers/FarmerHomeScreen';
 import FarmerProfileScreen from './screens/Farmers/FarmerProfileScreen';
 import FarmerMachineDetail from './screens/Farmers/FarmerMachineDetail';
 import FarmerAllMachines from './screens/Farmers/FarmerAllMachines';
+import F_VendorAllMachines from './screens/Farmers/F_VendorAllMachines';
+import F_VendorMachineDetail from './screens/Farmers/F_VendorMachineDetail';
 import FarmerSearchMachines_StCtyPn from './screens/Farmers/FarmerSearchMachines_StCtyPn';
 import FarmerSearchMachines_McTyp from './screens/Farmers/FarmerSearchMachines_McTyp';
 import FarmerTransactionHistoryScreen from './screens/Farmers/FarmerTransactionHistoryScreen';
@@ -52,7 +54,9 @@ const FarmerHomeNavigator = createStackNavigator(
     SearchStCtyPn: { screen: FarmerSearchMachines_StCtyPn },
     SearchMchn: { screen: FarmerSearchMachines_McTyp },
     FarmerMachineDetail: { screen: FarmerMachineDetail },
-    FarmerAllMachines: { screen: FarmerAllMachines }
+    FarmerAllMachines: { screen: FarmerAllMachines },
+    F_VendorAllMachines: { screen: F_VendorAllMachines },
+    F_VendorMachineDetail: { screen: F_VendorMachineDetail }
   },
   {
     navigationOptions: {

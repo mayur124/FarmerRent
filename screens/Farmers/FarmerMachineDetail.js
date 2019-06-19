@@ -419,6 +419,11 @@ export default class FarmerMachineDetail extends React.Component {
                 margin: 5,
                 alignItems: 'center'
               }}
+              onPress={() =>
+                this.props.navigation.navigate('FarmerBook', {
+                  adObject: this.state.adObject
+                })
+              }
             >
               <Text
                 style={{

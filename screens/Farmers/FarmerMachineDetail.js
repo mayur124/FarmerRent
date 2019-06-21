@@ -42,7 +42,7 @@ export default class FarmerMachineDetail extends React.Component {
     this._isMounted = true;
     this.forceUpdate();
     await this.setState({ adObject: this.props.navigation.getParam('item') });
-    await console.log(this.state.adObject);
+    await console.log('this.state.adObject\n', this.state.adObject);
     if (this.state.adObject.pricingType === 'Per Hour Pricing') {
       await this.setState({ price: this.state.adObject.price + ' / hour' });
     } else {

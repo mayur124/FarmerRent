@@ -70,7 +70,7 @@ export default class FarmerBook extends React.Component {
         return;
       }
       const adObject = this.props.navigation.getParam('adObject');
-      console.log(this.state.fromDate, '\t', this.state.toDate);
+      // console.log(this.state.fromDate, '\t', this.state.toDate);
       let tempDifference =
         Math.abs(new Date(this.state.toDate).getTime()) -
         Math.abs(new Date(this.state.fromDate).getTime());
@@ -108,7 +108,8 @@ export default class FarmerBook extends React.Component {
                   toDate: this.state.toDate,
                   cost: this.state.cost,
                   hoursUsed: this.state.hoursUsed,
-                  bookingDate: this.state.bookingDate
+                  bookingDate: this.state.bookingDate,
+                  machineType: adObject.machineType
                 };
                 dbRef
                   .push(bookingObject, error => {

@@ -70,11 +70,39 @@ const FarmerHomeNavigator = createStackNavigator(
   }
 );
 
+const FarmerHistoryNavigator = createStackNavigator(
+  {
+    FarmerTransactionHistoryScreen: { screen: FarmerTransactionHistoryScreen }
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'History',
+      tabBarIcon: ({ tintColor }) => (
+        <FontAwesome name='history' color={tintColor} size={24} />
+      )
+    }
+  }
+);
+
+const FarmerProfileNavigator = createStackNavigator(
+  {
+    Profile: { screen: FarmerProfileScreen }
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'Profile',
+      tabBarIcon: ({ tintColor }) => (
+        <FontAwesome name='user-circle' color={tintColor} size={24} />
+      )
+    }
+  }
+);
+
 const FarmerNavigator = createMaterialBottomTabNavigator(
   {
     FarmerHomeNavigator,
-    History: { screen: FarmerTransactionHistoryScreen },
-    Profile: { screen: FarmerProfileScreen }
+    FarmerHistoryNavigator,
+    FarmerProfileNavigator
   },
   {
     activeTintColor: '#F6F2EE',

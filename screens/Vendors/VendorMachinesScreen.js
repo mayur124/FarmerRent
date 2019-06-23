@@ -119,16 +119,14 @@ export default class VendorMachineScreen extends React.Component {
 
     return (
       <View style={vendorStyles.container}>
-        <CardItem header bordered>
-          <Item style={styles.formItem}>
-            <Input
-              autoCapitalize='none'
-              style={[styles.input, { alignContent: 'center' }]}
-              placeholder='Search - E.g. Tractor'
-              onChangeText={machineType => this.searchMachine(machineType)}
-            />
-          </Item>
-        </CardItem>
+        <Item style={styles.formItem}>
+          <Input
+            autoCapitalize='none'
+            style={[styles.input, { alignContent: 'center' }]}
+            placeholder='Search - E.g. Tractor'
+            onChangeText={machineType => this.searchMachine(machineType)}
+          />
+        </Item>
         <FlatList
           contentContainerStyle={{
             justifyContent: 'center',
@@ -144,7 +142,7 @@ export default class VendorMachineScreen extends React.Component {
                   });
                 }}
               >
-                <Card style={{ width: Dimensions.get('screen').width - 20 }}>
+                <Card style={{ width: Dimensions.get('screen').width - 10 }}>
                   <CardItem>
                     <Image
                       style={{

@@ -177,9 +177,9 @@ const EarningNavigator = createStackNavigator(
 
 const VendorNavigator = createMaterialBottomTabNavigator(
   {
+    VendorAddMachine,
     BookingNavigator,
     EarningNavigator,
-    VendorAddMachine,
     profileNavigator
   },
   {

@@ -8,7 +8,6 @@ import {
   FlatList,
   ActivityIndicator
 } from 'react-native';
-import HorizontalLine from '../../components/HorizontalLine';
 import { Card, CardItem, Button } from 'native-base';
 import { styles, vendorStyles } from '../../components/Styles';
 import * as firebase from 'firebase';
@@ -60,10 +59,6 @@ export default class FarmerTransactionHistoryScreen extends React.Component {
     }
   };
 
-  fetchBookings = async () => {
-    this.componentDidMount();
-  };
-
   render() {
     if (this.state.loading) {
       return (
@@ -99,7 +94,7 @@ export default class FarmerTransactionHistoryScreen extends React.Component {
           Booked machines
         </Text>
         <FlatList
-          onRefresh={() => this.fetchBookings()}
+          onRefresh={() => this.componentDidMount()}
           refreshing={this.state.loading}
           style={{ marginTop: 10 }}
           scrollsToTop={true}

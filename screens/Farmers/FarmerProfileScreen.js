@@ -119,12 +119,12 @@ export default class FarmerProfileScreen extends React.Component {
           displayName: fname + ' ' + lname
         })
         .then(() => console.log('displayName updated'))
-        .catch(error => console.log(error));
+        .catch(error => Alert.alert(error));
       if (password !== '') {
         user
           .updatePassword(password)
           .then(() => console.log('password reset done'))
-          .catch(error => console.log(error));
+          .catch(error => Alert.alert(error));
       }
     }
   };

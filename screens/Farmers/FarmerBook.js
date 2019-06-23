@@ -109,7 +109,8 @@ export default class FarmerBook extends React.Component {
                   cost: this.state.cost,
                   hoursUsed: this.state.hoursUsed,
                   bookingDate: this.state.bookingDate,
-                  machineType: adObject.machineType
+                  machineType: adObject.machineType,
+                  farmerId: currentFarmer
                 };
                 dbRef
                   .push(bookingObject, error => {

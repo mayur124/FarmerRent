@@ -30,6 +30,7 @@ import VendorEarningScreen from './screens/Vendors/VendorEarningScreen';
 import VendorProfileScreen from './screens/Vendors/VendorProfileScreen';
 import VendorMachineScreen from './screens/Vendors/VendorMachinesScreen';
 import VendorMachineDetail from './screens/Vendors/VendorMachineDetail';
+import VendorBookingDetailsScreen from './screens/Vendors/VendorBookingDetailsScreen';
 
 //Vendor Form pages
 import VendorListMachineScreen from './screens/Vendors/VendorListMachineScreen_F';
@@ -147,7 +148,8 @@ const profileNavigator = createStackNavigator(
 
 const BookingNavigator = createStackNavigator(
   {
-    BookingScreen: { screen: VendorBookingsScreen }
+    BookingScreen: { screen: VendorBookingsScreen },
+    VendorBookingDetailsScreen: { screen: VendorBookingDetailsScreen }
   },
   {
     navigationOptions: {
@@ -175,9 +177,9 @@ const EarningNavigator = createStackNavigator(
 
 const VendorNavigator = createMaterialBottomTabNavigator(
   {
-    VendorAddMachine,
     BookingNavigator,
     EarningNavigator,
+    VendorAddMachine,
     profileNavigator
   },
   {

@@ -36,17 +36,8 @@ import VendorBookingDetailsScreen from './screens/Vendors/VendorBookingDetailsSc
 import VendorListMachineScreen from './screens/Vendors/VendorListMachineScreen_F';
 import VendorMachineDescriptionScreen from './screens/Vendors/VendorMachineDescription_F';
 import VendorMachinePricingScreen from './screens/Vendors/VendorMachinePricingScreen_F';
+import { firebaseConfig } from './firebaseConfig';
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: 'AIzaSyDGEhpCAPrGhjc5-VdEigFTc682KUmrv8w',
-  authDomain: 'summerproject-43a50.firebaseapp.com',
-  databaseURL: 'https://summerproject-43a50.firebaseio.com',
-  projectId: 'summerproject-43a50',
-  storageBucket: 'summerproject-43a50.appspot.com',
-  messagingSenderId: '600953949285',
-  appId: '1:600953949285:web:01080b7fcb70fbf5'
-};
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
